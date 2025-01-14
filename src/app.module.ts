@@ -5,6 +5,9 @@ import { EnvConfiguration } from './config/env.config';
 import { JoiValidationSchema } from './config/joi.validation';
 import typeorm from './config/typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './user/user.module';
+import { RoleModule } from './role/role.module';
+import { UserRoleModule } from './user-role/user-role.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    UserModule,
+    RoleModule,
+    UserRoleModule,
   ],
   controllers: [],
   providers: [],
