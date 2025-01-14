@@ -2,6 +2,8 @@ import {
   Column,
   Entity,
   OneToMany,
+  BeforeInsert,
+  BeforeUpdate,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
@@ -83,4 +85,14 @@ export class User {
     example: '2025-01-01T12:00:00Z',
   })
   deleted_at: Date;
+
+  @BeforeInsert()
+  checkFieldsBeforeInsert() {
+    this.email = this.email.toLocaleLowerCase().trim();
+  }
+
+  @BeforeUpdate()
+  checkFieldsBeforeUpdate() {
+    this.checkFieldsBeforeInsert();
+  }
 }
