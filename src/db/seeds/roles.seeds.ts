@@ -9,7 +9,7 @@ class RoleSeeds {
   constructor(private readonly entityManager: EntityManager) {}
 
   async createRolesSeeds(permissions: Permission[]): Promise<Role[]> {
-    if (!Array.isArray(permissions) || permissions.length === 0) {
+    if (!Array.isArray(permissions)) {
       await this.entityManager.connection.destroy();
       return [];
     }
@@ -30,13 +30,15 @@ class RoleSeeds {
         roles.push(saved);
       }
 
-      for (const [i, permission] of permissions.entries()) {
-        const create = pivotRepository.create({
-          permission: permission,
-          role: roles[i] === undefined ? roles[0] : roles[i],
-        });
+      if (permissions.length > 0) {
+        for (const [i, permission] of permissions.entries()) {
+          const create = pivotRepository.create({
+            permission: permission,
+            role: roles[i] === undefined ? roles[0] : roles[i],
+          });
 
-        await pivotRepository.save(create);
+          await pivotRepository.save(create);
+        }
       }
     }
 

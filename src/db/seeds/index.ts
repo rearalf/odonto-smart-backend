@@ -4,6 +4,7 @@ import { databaseConnection } from 'src/config/typeorm';
 
 import PermissionSeeds from './permission.seeds';
 import RoleSeeds from './roles.seeds';
+import UserSeeds from './user.seeds';
 
 class Seeds {
   constructor(private readonly dataSource: DataSource) {}
@@ -20,7 +21,10 @@ class Seeds {
       }
 
       const roleSeeds = new RoleSeeds(manager);
-      const _roles = await roleSeeds.createRolesSeeds(permissions);
+      const roles = await roleSeeds.createRolesSeeds(permissions);
+
+      const userSeeds = new UserSeeds(manager);
+      await userSeeds.createUsersSeeds(roles);
     });
     await this.dataSource.destroy();
   }
