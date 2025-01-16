@@ -21,7 +21,7 @@ export class UserRole {
   })
   id: number;
 
-  @ManyToOne(() => User, (user) => user.rol)
+  @ManyToOne(() => User, (user) => user.role)
   @JoinColumn({ name: 'user_id' })
   @ApiProperty({
     description: 'The user associated with the role',

@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, Length } from 'class-validator';
+import * as bcrypt from 'bcryptjs';
 
 import { UserRole } from 'src/user-role/entities/user-role.entity';
 import { UserPermission } from '../../user-permission/entities/user-permission.entity';
@@ -47,12 +48,12 @@ export class User {
   @IsString()
   last_name: string;
 
-  @OneToMany(() => UserRole, (userRole) => userRole.user)
+  @OneToMany(() => UserRole, (userRole) => userRole.user, { eager: true })
   @ApiProperty({
     example: 'Admin',
     description: 'Roles associated with this user',
   })
-  rol: UserRole[];
+  role: UserRole[];
 
   @OneToMany(() => UserPermission, (userPermission) => userPermission.user)
   @ApiProperty({
@@ -88,11 +89,16 @@ export class User {
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {
+    this.hashPassword();
     this.email = this.email.toLocaleLowerCase().trim();
   }
 
   @BeforeUpdate()
   checkFieldsBeforeUpdate() {
-    this.checkFieldsBeforeInsert();
+    if (this.email) this.email = this.email.toLocaleLowerCase().trim();
+  }
+
+  hashPassword() {
+    this.password = bcrypt.hashSync(this.password, 10);
   }
 }
