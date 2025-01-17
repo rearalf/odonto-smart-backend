@@ -46,7 +46,7 @@ export class RoleService {
 
       const roleSaved = await roleRepository.save(createRole);
 
-      const rolePermission: RolePermission[] = [];
+      const rolePermission: Permission[] = [];
 
       for (const permission of permissions) {
         const permissionCreate = rolePermissionRepository.create({
@@ -57,7 +57,7 @@ export class RoleService {
         const permissionSaved =
           await rolePermissionRepository.save(permissionCreate);
 
-        rolePermission.push(permissionSaved);
+        rolePermission.push(permissionSaved.permission);
       }
 
       return {
@@ -141,45 +141,56 @@ export class RoleService {
       );
 
       const permissionsModified = {
-        added: [] as string[],
-        removerd: [] as string[],
+        added: [] as Permission[],
+        removerd: [] as Permission[],
       };
 
-      if (updateRoleDto.permission.length > 0) {
-        const permissionsToRemove = currentPermissionIds.filter(
-          (id) => !updateRoleDto.permission.includes(id),
-        );
-        const permissionsToAdd = updateRoleDto.permission.filter(
-          (id) => !currentPermissionIds.includes(id),
-        );
-
-        for (const permissionId of permissionsToAdd) {
-          const permission = await permissionRepository.findOne({
-            where: { id: permissionId },
-          });
-
-          if (!permission)
-            throw new NotFoundException(`Permission with ID ${id} not found`);
-
-          const rolePermission = rolePermissionRepository.create({
-            role,
-            permission,
-          });
-
-          const saved = await rolePermissionRepository.save(rolePermission);
-
-          permissionsModified.added.push(saved.permission.name);
-        }
-
-        if (permissionsToRemove.length > 0) {
-          const permissionToRemoveEnttites = await permissionRepository.find({
-            where: { id: In(permissionsToRemove) },
-          });
-
-          permissionsModified.removerd = permissionToRemoveEnttites.map(
-            (permission) => permission.name,
+      if (updateRoleDto.permission) {
+        if (updateRoleDto.permission.length > 0) {
+          const permissionsToAdd = updateRoleDto.permission.filter(
+            (id) => !currentPermissionIds.includes(id),
           );
 
+          for (const permissionId of permissionsToAdd) {
+            const permission = await permissionRepository.findOne({
+              where: { id: permissionId },
+            });
+
+            if (!permission)
+              throw new NotFoundException(`Permission with ID ${id} not found`);
+
+            const rolePermission = rolePermissionRepository.create({
+              role,
+              permission,
+            });
+
+            const saved = await rolePermissionRepository.save(rolePermission);
+
+            permissionsModified.added.push(saved.permission);
+          }
+        }
+
+        let permissionsToRemove: number[] = [];
+
+        if (updateRoleDto.permission.length === 0) {
+          permissionsToRemove = role.permission.map(
+            (rolePermission) => rolePermission.permission.id,
+          );
+        } else {
+          permissionsToRemove = currentPermissionIds.filter(
+            (id) => !updateRoleDto.permission.includes(id),
+          );
+        }
+
+        const permissionToRemoveEnttites = await permissionRepository.find({
+          where: { id: In(permissionsToRemove) },
+        });
+
+        permissionsModified.removerd = permissionToRemoveEnttites.map(
+          (permission) => permission,
+        );
+
+        if (permissionsToRemove.length > 0)
           await rolePermissionRepository
             .createQueryBuilder('role_permission')
             .softDelete()
@@ -188,12 +199,11 @@ export class RoleService {
               permissions: permissionsToRemove,
             })
             .execute();
-        }
       }
 
       return {
-        updateRole,
-        permissionsModified,
+        role: updateRole,
+        permissions: permissionsModified,
       };
     });
   }
@@ -206,19 +216,19 @@ export class RoleService {
       const role = await this.findRoleById(id);
       if (!role) throw new NotFoundException(`Role with ID ${id} not found`);
 
-      const roleDeleted = await roleRepository.softDelete(id);
+      await roleRepository.softDelete(id);
 
-      const permissionIds = role.permission.map((permission) => permission.id);
+      const permissions = role.permission.map((permission) => permission);
 
-      const permissionsDeleted: number[] = [];
+      const permissionsDeleted: Permission[] = [];
 
-      for (const id of permissionIds) {
-        const deleted = await pivotRepository.softDelete(id);
-        permissionsDeleted.push(deleted.affected);
+      for (const pivot of permissions) {
+        await pivotRepository.softDelete(pivot.permission);
+        permissionsDeleted.push(pivot.permission);
       }
 
       return {
-        roleDeleted: roleDeleted.affected,
+        role,
         permissionsDeleted,
       };
     });
