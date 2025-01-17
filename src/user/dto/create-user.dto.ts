@@ -42,4 +42,11 @@ export class CreateUserDto {
   })
   @IsArray()
   role: number[];
+
+  @ApiProperty({
+    example: '1, 2, 3',
+    description: 'It is the permissions ids',
+  })
+  @IsArray()
+  permission: number[];
 }
