@@ -67,7 +67,7 @@ export class Permission {
     description: 'Timestamp when the permission was created',
     example: '2025-01-01T12:00:00Z',
   })
-  createdAt: Date;
+  create_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamptz',
@@ -78,12 +78,12 @@ export class Permission {
     description: 'Timestamp when the permission was last updated',
     example: '2025-01-01T12:00:00Z',
   })
-  updatedAt: Date;
+  update_at: Date;
 
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
   @ApiProperty({
     nullable: true,
     description: 'Timestamp when the permission was deleted (if applicable)',
   })
-  deletedAt?: Date;
+  deleted_at?: Date;
 }

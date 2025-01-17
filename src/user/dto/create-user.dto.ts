@@ -36,6 +36,10 @@ export class CreateUserDto {
   @IsString()
   last_name: string;
 
+  @ApiProperty({
+    example: '1, 2, 3',
+    description: 'It is the roles ids',
+  })
   @IsArray()
   role: number[];
 }
