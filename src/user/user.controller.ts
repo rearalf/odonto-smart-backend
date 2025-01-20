@@ -6,12 +6,14 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiResponse } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -29,6 +31,7 @@ export class UserController {
     return this.userService.findUserById(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiResponse({ description: 'Finding all user' })
   findUsers() {

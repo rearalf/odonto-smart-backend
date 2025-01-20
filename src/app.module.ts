@@ -11,6 +11,7 @@ import { UserRoleModule } from './user-role/user-role.module';
 import { PermissionModule } from './permission/permission.module';
 import { RolePermissionModule } from './role-permission/role-permission.module';
 import { UserPermissionModule } from './user-permission/user-permission.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,11 +22,11 @@ import { UserPermissionModule } from './user-permission/user-permission.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         ...config.get('database'),
         autoLoadEntities: true,
       }),
-      inject: [ConfigService],
     }),
     UserModule,
     RoleModule,
@@ -33,6 +34,7 @@ import { UserPermissionModule } from './user-permission/user-permission.module';
     PermissionModule,
     RolePermissionModule,
     UserPermissionModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

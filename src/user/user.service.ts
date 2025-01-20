@@ -144,7 +144,7 @@ export class UserService {
         .leftJoinAndSelect('userRole.role', 'role')
         .leftJoinAndSelect('user.permission', 'userPermission')
         .leftJoinAndSelect('userPermission.permission', 'permission')
-        .select(['user.id', 'user.name', 'user.last_name'])
+        .select(['user.id', 'user.name', 'user.last_name', 'user.email'])
         .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
         .addSelect([
           'userPermission.id',
