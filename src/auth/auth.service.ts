@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
-import { SignInDto } from './dto/signin.dto';
 import { User } from 'src/user/entities/user.entity';
+import { SignInDto } from './dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
