@@ -1,20 +1,19 @@
+import { ApiResponse } from '@nestjs/swagger';
 import {
-  Body,
-  Controller,
-  Delete,
   Get,
+  Post,
+  Body,
   Param,
   Patch,
-  Post,
-  UseGuards,
+  Delete,
+  Controller,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { ApiResponse } from '@nestjs/swagger';
-import { User } from './entities/user.entity';
+
+import { RequirePermissions } from 'src/auth/decorators/permissions.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RequirePermissions } from 'src/auth/decorators/permissions.decorator';
+import { User } from './entities/user.entity';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
@@ -27,14 +26,14 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @RequirePermissions('view_user')
   @ApiResponse({ description: 'Finding user by Id', type: User })
   findUserById(@Param('id') id: number) {
     return this.userService.findUserById(id);
   }
 
   @Get()
-  @RequirePermissions('create_user')
+  @RequirePermissions('view_users')
   @ApiResponse({ description: 'Finding all user' })
   findUsers() {
     return this.userService.findUsers();

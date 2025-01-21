@@ -1,34 +1,51 @@
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Global, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { User } from 'src/user/entities/user.entity';
+import { PermissionService } from 'src/permission/permission.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { User } from 'src/user/entities/user.entity';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { RoleService } from 'src/role/role.service';
+import { UserService } from 'src/user/user.service';
+import { UserModule } from 'src/user/user.module';
+import { RoleModule } from 'src/role/role.module';
+import { PermissionModule } from 'src/permission/permission.module';
+import {
+  jwtModuleAsyncOptions,
+  passportRegister,
+} from 'src/config/passport.config';
 
+@Global()
 @Module({
-  providers: [AuthService, JwtStrategy],
-  controllers: [AuthController],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    PermissionService,
+    RoleService,
+    UserService,
+  ],
   imports: [
     ConfigModule,
     TypeOrmModule.forFeature([User]),
-    PassportModule.register({
-      defaultStrategy: 'jwt',
-    }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.get('JWT_EXPIRESIN'),
-        },
-      }),
-    }),
+    PassportModule.register(passportRegister),
+    JwtModule.registerAsync(jwtModuleAsyncOptions),
+    PermissionModule,
+    RoleModule,
+    UserModule,
   ],
-  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule],
+  exports: [
+    TypeOrmModule,
+    JwtStrategy,
+    PassportModule,
+    JwtModule,
+    PermissionService,
+    RoleService,
+    UserService,
+  ],
+  controllers: [AuthController],
 })
 export class AuthModule {}

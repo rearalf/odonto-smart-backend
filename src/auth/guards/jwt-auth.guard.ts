@@ -7,11 +7,14 @@ import {
 } from '@nestjs/common';
 
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
-import { User } from 'src/user/entities/user.entity';
+import { PermissionService } from '../../permission/permission.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private readonly reflector: Reflector) {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly permissionService: PermissionService,
+  ) {
     super();
   }
 
@@ -27,7 +30,44 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (!requiredPermissions) return true;
 
     const request = context.switchToHttp().getRequest();
-    const _user = request.user as User;
+    const user = request.user as {
+      id: number;
+      name: string;
+      last_name: string;
+      email: string;
+      roles: { id: number; name: string }[];
+    };
+
+    const permissions: string[] = [];
+
+    for (const role of user.roles) {
+      const permissionsByRole =
+        await this.permissionService.getPermissionsByRoleId(role.id);
+
+      permissions.push(...permissionsByRole);
+    }
+
+    const userPermissions = await this.permissionService.getPermissionsByUserId(
+      user.id,
+    );
+
+    permissions.push(...userPermissions);
+
+    if (permissions.length === 0) {
+      throw new UnauthorizedException(
+        'Acceso denegado: Permisos insuficientes.',
+      );
+    }
+
+    const hasPermission = requiredPermissions.every((permission) =>
+      permissions.includes(permission),
+    );
+
+    if (!hasPermission) {
+      throw new UnauthorizedException(
+        'Acceso denegado: Permisos insuficientes.',
+      );
+    }
 
     return true;
   }
