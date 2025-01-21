@@ -14,6 +14,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RequirePermissions } from 'src/auth/decorators/permissions.decorator';
 
 @Controller('user')
 export class UserController {
@@ -26,13 +27,14 @@ export class UserController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({ description: 'Finding user by Id', type: User })
   findUserById(@Param('id') id: number) {
     return this.userService.findUserById(id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
+  @RequirePermissions('create_user')
   @ApiResponse({ description: 'Finding all user' })
   findUsers() {
     return this.userService.findUsers();

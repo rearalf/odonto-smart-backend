@@ -33,6 +33,9 @@ export class AuthService {
           'user.email',
           'user.password',
         ])
+        .leftJoinAndSelect('user.role', 'userRole')
+        .leftJoinAndSelect('userRole.role', 'role')
+        .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
         .getOne();
 
       if (!user) throw new UnauthorizedException('Credentials are not valid.');
@@ -40,13 +43,22 @@ export class AuthService {
       if (!bcrypt.compareSync(password, user.password))
         throw new UnauthorizedException('Credentials are not valid.');
 
-      const token = this.getJwtToken({ id: user.id });
+      const roles = user.role.map((rol) => rol.role.name);
+
+      const token = this.getJwtToken({
+        id: user.id,
+        name: user.name,
+        last_name: user.last_name,
+        email: user.email,
+        roles,
+      });
 
       return {
         id: user.id,
         name: user.name,
         last_name: user.last_name,
         email: user.email,
+        roles,
         access_token: token,
       };
     });

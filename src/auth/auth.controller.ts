@@ -19,6 +19,13 @@ export class AuthController {
       httpOnly: true,
       secure: true,
     });
+
+    return {
+      name: signIn.name,
+      last_name: signIn.last_name,
+      email: signIn.email,
+      roles: signIn.roles,
+    };
   }
 
   @Post('logout')
