@@ -72,7 +72,28 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return true;
   }
 
-  handleRequest(err, user, _info) {
+  handleRequest(err, user, info) {
+    if (info) {
+      const messages = {
+        statusCode: 401,
+      };
+      if (info.expiredAt) {
+        throw new UnauthorizedException({
+          ...messages,
+          message: 'La sesión ha expirado.',
+          expiredAt:
+            new Date(info.expiredAt).toLocaleDateString() +
+            ' - ' +
+            new Date(info.expiredAt).toLocaleTimeString(),
+        });
+      } else {
+        throw new UnauthorizedException({
+          ...messages,
+          message: 'La sesión no existe.',
+        });
+      }
+    }
+
     if (err || !user) {
       throw err || new UnauthorizedException();
     }

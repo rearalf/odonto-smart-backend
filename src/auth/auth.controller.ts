@@ -1,7 +1,7 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signin.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
@@ -19,21 +19,52 @@ export class AuthController {
       httpOnly: true,
       secure: true,
     });
+    response.cookie('refresh_token', signIn.refresh_token, {
+      httpOnly: true,
+      secure: true,
+    });
 
     return {
       name: signIn.name,
       last_name: signIn.last_name,
       email: signIn.email,
       roles: signIn.roles,
+      refresh_token: signIn.refresh_token,
     };
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  logout(@Res() res: Response) {
-    res.clearCookie('access_token');
-    return res.json({
+  async logout(@Req() request: Request, @Res() response: Response) {
+    response.clearCookie('access_token');
+    response.clearCookie('refresh_token');
+
+    await this.authService.logOut(request.cookies['refresh_token']);
+
+    return response.json({
       message: 'Logged out successfully',
+    });
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Req() request: Request, @Res() response: Response) {
+    const new_tokens = await this.authService.refreshToken(
+      request.cookies['access_token'],
+      request.cookies['refresh_token'],
+      response,
+    );
+
+    response.cookie('access_token', new_tokens.new_access_token, {
+      httpOnly: true,
+      secure: true,
+    });
+    response.cookie('refresh_token', new_tokens.new_refresh_token, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return response.json({
+      refresh_token: new_tokens.new_refresh_token,
     });
   }
 }
