@@ -144,7 +144,7 @@ export class UserService {
         .leftJoinAndSelect('userRole.role', 'role')
         .leftJoinAndSelect('user.permission', 'userPermission')
         .leftJoinAndSelect('userPermission.permission', 'permission')
-        .select(['user.id', 'user.name', 'user.last_name'])
+        .select(['user.id', 'user.name', 'user.last_name', 'user.email'])
         .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
         .addSelect([
           'userPermission.id',
@@ -235,21 +235,22 @@ export class UserService {
           );
         }
 
-        const rolesToRemoveEntities = await roleRepository
-          .createQueryBuilder('role')
-          .select(['role.id', 'role.name', 'role.description'])
-          .where('role.id IN (:...roles)', { roles: rolesToRemove })
-          .getMany();
+        if (rolesToRemove.length > 0) {
+          const rolesToRemoveEntities = await roleRepository
+            .createQueryBuilder('role')
+            .select(['role.id', 'role.name', 'role.description'])
+            .where('role.id IN (:...roles)', { roles: rolesToRemove })
+            .getMany();
 
-        rolesModified.removed = rolesToRemoveEntities.map((role) => role);
+          rolesModified.removed = rolesToRemoveEntities.map((role) => role);
 
-        if (rolesToRemove.length > 0)
           await pivotRoleRepository
             .createQueryBuilder('user_role')
             .softDelete()
             .where('user_id = :id', { id })
             .andWhere('role_id IN (:...roles)', { roles: rolesToRemove })
             .execute();
+        }
       }
 
       const permissionModified = {
