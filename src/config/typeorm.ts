@@ -3,6 +3,15 @@ import { DatabaseType, DataSource, DataSourceOptions } from 'typeorm';
 import { registerAs } from '@nestjs/config';
 import 'dotenv/config';
 
+if (
+  !process.env.DB_HOST ||
+  !process.env.DB_NAME ||
+  !process.env.DB_USERNAME ||
+  !process.env.DB_PASSWORD
+) {
+  throw new Error('Missing one or more database environment variables');
+}
+
 const config: DataSourceOptions | BaseDataSourceOptions = {
   type: (process.env.DB_TYPE as DatabaseType) || 'postgres',
   host: process.env.DB_HOST || 'localhost',
