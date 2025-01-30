@@ -29,7 +29,7 @@ export class AuthController {
       last_name: signIn.last_name,
       email: signIn.email,
       roles: signIn.roles,
-      refresh_token: signIn.access_token,
+      access_token: signIn.access_token,
     };
   }
 
