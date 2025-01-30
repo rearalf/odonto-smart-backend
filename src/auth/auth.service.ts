@@ -7,12 +7,14 @@ import { UserSession } from './entities/user-session.entity';
 import { User } from 'src/user/entities/user.entity';
 import { SignInDto } from './dto/signin.dto';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   private getJwtToken(payload: any, refresh_token?: boolean) {
@@ -20,7 +22,7 @@ export class AuthService {
       payload,
       refresh_token
         ? {
-            expiresIn: '30s',
+            expiresIn: this.configService.get('JWT_EXPIRENSIN_REFRESH'),
           }
         : {},
     );
