@@ -8,9 +8,7 @@ import { Request } from 'express';
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => request.cookies['access_token'],
-      ]),
+      jwtFromRequest: ExtractJwt.fromExtractors([extractJwtFromCookies]),
       secretOrKey: configService.get('JWT_SECRET'),
       passReqToCallback: true,
     });
@@ -29,13 +27,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!payload) {
       throw new UnauthorizedException('Invalid token');
     }
-
-    return {
-      id: payload.id,
-      name: payload.name,
-      last_name: payload.last_name,
-      email: payload.email,
-      roles: payload.roles,
-    };
+    return { ...payload };
   }
+}
+
+function extractJwtFromCookies(request: Request): string | null {
+  return request.cookies['access_token'] || null;
 }

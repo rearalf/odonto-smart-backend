@@ -30,40 +30,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (!requiredPermissions) return true;
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user as {
-      id: number;
-      name: string;
-      last_name: string;
-      email: string;
-      roles: { id: number; name: string }[];
-    };
+    const user = request.user as { id: number; roles: { id: number }[] };
 
-    const permissions: string[] = [];
+    const permissions = await this.getUserPermissions(user);
 
-    for (const role of user.roles) {
-      const permissionsByRole =
-        await this.permissionService.getPermissionsByRoleId(role.id);
-
-      permissions.push(...permissionsByRole);
-    }
-
-    const userPermissions = await this.permissionService.getPermissionsByUserId(
-      user.id,
-    );
-
-    permissions.push(...userPermissions);
-
-    if (permissions.length === 0) {
-      throw new UnauthorizedException(
-        'Acceso denegado: Permisos insuficientes.',
-      );
-    }
-
-    const hasPermission = requiredPermissions.every((permission) =>
-      permissions.includes(permission),
-    );
-
-    if (!hasPermission) {
+    if (
+      permissions.length === 0 ||
+      !this.hasRequiredPermissions(permissions, requiredPermissions)
+    ) {
       throw new UnauthorizedException(
         'Acceso denegado: Permisos insuficientes.',
       );
@@ -72,31 +46,45 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return true;
   }
 
+  private async getUserPermissions(user: {
+    id: number;
+    roles: { id: number }[];
+  }): Promise<string[]> {
+    const rolePermissions = await Promise.all(
+      user.roles.map((role) =>
+        this.permissionService.getPermissionsByRoleId(role.id),
+      ),
+    );
+    const permissionsFromRoles = rolePermissions.flat();
+    const permissionsFromUser =
+      await this.permissionService.getPermissionsByUserId(user.id);
+
+    return [...permissionsFromRoles, ...permissionsFromUser];
+  }
+
+  private hasRequiredPermissions(
+    permissions: string[],
+    requiredPermissions: string[],
+  ): boolean {
+    return requiredPermissions.every((permission) =>
+      permissions.includes(permission),
+    );
+  }
+
   handleRequest(err, user, info) {
     if (info) {
-      const messages = {
-        statusCode: 401,
-      };
-      if (info.expiredAt) {
-        throw new UnauthorizedException({
-          ...messages,
-          message: 'La sesión ha expirado.',
-          expiredAt:
-            new Date(info.expiredAt).toLocaleDateString() +
-            ' - ' +
-            new Date(info.expiredAt).toLocaleTimeString(),
-        });
-      } else {
-        throw new UnauthorizedException({
-          ...messages,
-          message: 'La sesión no existe.',
-        });
-      }
+      const messages = { statusCode: 401 };
+      const message = info.expiredAt
+        ? `La sesión ha expirado. Expirará el ${new Date(info.expiredAt).toLocaleString()}`
+        : 'La sesión no existe.';
+
+      throw new UnauthorizedException({ ...messages, message });
     }
 
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
+
     return user;
   }
 }
