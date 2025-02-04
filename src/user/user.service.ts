@@ -138,7 +138,7 @@ export class UserService {
     return await this.dataSource.transaction(async (manage) => {
       const userRepository = manage.getRepository(User);
 
-      const user = await userRepository
+      const users = await userRepository
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.role', 'userRole')
         .leftJoinAndSelect('userRole.role', 'role')
@@ -157,7 +157,21 @@ export class UserService {
         .andWhere('role.deleted_at IS NULL')
         .getMany();
 
-      return user;
+      const formattedUsers = users.map((user) => ({
+        ...user,
+        role: user.role.map((r) => ({
+          id: r.role.id,
+          name: r.role.name,
+          description: r.role.description,
+        })),
+        permission: user.permission.map((p) => ({
+          id: p.permission.id,
+          name: p.permission.name,
+          description: p.permission.description,
+        })),
+      }));
+
+      return formattedUsers;
     });
   }
 

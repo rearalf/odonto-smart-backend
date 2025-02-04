@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
+// TODO: Add revoke tokens feature.
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService) {

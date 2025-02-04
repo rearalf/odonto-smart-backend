@@ -55,10 +55,10 @@ export class AuthService {
         .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
         .getOne();
 
-      if (!user) throw new UnauthorizedException('Credentials are not valid.');
+      if (!user) throw new UnauthorizedException('Credenciales incorrectas.');
 
       if (!bcrypt.compareSync(password, user.password))
-        throw new UnauthorizedException('Credentials are not valid.');
+        throw new UnauthorizedException('Credenciales incorrectas.');
 
       const roles = user.role.map((rol) => ({
         id: rol.role.id,
