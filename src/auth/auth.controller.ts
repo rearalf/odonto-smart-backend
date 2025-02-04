@@ -33,6 +33,7 @@ export class AuthController {
     };
   }
 
+  // FIXME: Delete the database refresh even if it has already expired.
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   async logout(@Req() request: Request, @Res() response: Response) {
@@ -64,7 +65,7 @@ export class AuthController {
     });
 
     return response.json({
-      refresh_token: new_tokens.new_refresh_token,
+      access_token: new_tokens.new_access_token,
     });
   }
 }

@@ -34,6 +34,7 @@ export class AuthService {
     });
   }
 
+  // FIXME: Add permission in the object.
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
 
