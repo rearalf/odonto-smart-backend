@@ -25,8 +25,8 @@ export class AuthController {
     });
 
     return {
-      name: signIn.name,
-      last_name: signIn.last_name,
+      // name: signIn.name,
+      // last_name: signIn.last_name,
       email: signIn.email,
       roles: signIn.roles,
       access_token: signIn.access_token,

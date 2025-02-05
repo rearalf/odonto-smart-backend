@@ -38,9 +38,9 @@ export class UserService {
 
       const createUser = userRepository.create({
         password: createUserDto.password,
-        last_name: createUserDto.last_name,
+        // last_name: createUserDto.last_name,
         email: createUserDto.email,
-        name: createUserDto.name,
+        // name: createUserDto.name,
       });
 
       const newUser = await userRepository.save(createUser);
@@ -200,9 +200,9 @@ export class UserService {
 
       const fieldsToUpdate: Partial<User> = {};
       if (updateUserDto.email) fieldsToUpdate.email = updateUserDto.email;
-      if (updateUserDto.name) fieldsToUpdate.name = updateUserDto.name;
-      if (updateUserDto.last_name)
-        fieldsToUpdate.last_name = updateUserDto.last_name;
+      // if (updateUserDto.name) fieldsToUpdate.name = updateUserDto.name;
+      // if (updateUserDto.last_name)
+      //   fieldsToUpdate.last_name = updateUserDto.last_name;
 
       const userCreate = userRepository.create(fieldsToUpdate);
       const updateUser = await userRepository.update({ id }, userCreate);

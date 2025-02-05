@@ -68,8 +68,8 @@ export class AuthService {
 
       const payload = {
         id: user.id,
-        name: user.name,
-        last_name: user.last_name,
+        /* name: user.name,
+        last_name: user.last_name, */
         email: user.email,
         roles,
       };
@@ -82,8 +82,8 @@ export class AuthService {
 
       return {
         id: user.id,
-        name: user.name,
-        last_name: user.last_name,
+        /* name: user.name,
+        last_name: user.last_name, */
         email: user.email,
         roles,
         access_token,

@@ -8,14 +8,17 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Length } from 'class-validator';
+import { IsEmail, Length } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
 
 import { UserRole } from 'src/user-role/entities/user-role.entity';
 import { UserPermission } from '../../user-permission/entities/user-permission.entity';
 import { UserSession } from 'src/auth/entities/user-session.entity';
+import { Person } from 'src/person/entities/person.entity';
 
 @Entity()
 export class User {
@@ -39,15 +42,9 @@ export class User {
   })
   password: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  @ApiProperty({ example: 'John', description: 'The names of the user' })
-  @IsString()
-  name: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  @ApiProperty({ example: 'Doe', description: 'Last name of the user' })
-  @IsString()
-  last_name: string;
+  @OneToOne(() => Person, { cascade: true })
+  @JoinColumn({ name: 'person_id' })
+  person: Person;
 
   @OneToMany(() => UserRole, (userRole) => userRole.user, { eager: true })
   @ApiProperty({

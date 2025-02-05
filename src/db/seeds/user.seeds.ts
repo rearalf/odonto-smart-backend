@@ -21,8 +21,8 @@ class UserSeeds {
     const create = await repository.create({
       email: EnvConfiguration().email,
       password: EnvConfiguration().password,
-      name: 'Admin',
-      last_name: 'Admin',
+      /* name: 'Admin',
+      last_name: 'Admin', */
     });
 
     const saved = await repository.save(create);

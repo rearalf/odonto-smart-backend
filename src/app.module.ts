@@ -12,6 +12,12 @@ import { PermissionModule } from './permission/permission.module';
 import { RolePermissionModule } from './role-permission/role-permission.module';
 import { UserPermissionModule } from './user-permission/user-permission.module';
 import { AuthModule } from './auth/auth.module';
+import { PersonModule } from './person/person.module';
+import { TypePersonModule } from './type-person/type-person.module';
+import { PersonContactModule } from './person_contact/person_contact.module';
+import { SpecialtyModule } from './specialty/specialty.module';
+import { DoctorModule } from './doctor/doctor.module';
+import { PatientModule } from './patient/patient.module';
 
 @Module({
   imports: [
@@ -35,6 +41,12 @@ import { AuthModule } from './auth/auth.module';
     RolePermissionModule,
     UserPermissionModule,
     AuthModule,
+    PersonModule,
+    TypePersonModule,
+    PersonContactModule,
+    SpecialtyModule,
+    DoctorModule,
+    PatientModule,
   ],
   controllers: [],
   providers: [],

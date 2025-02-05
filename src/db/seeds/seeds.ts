@@ -7,6 +7,17 @@ export const roleSeeds: IRolesSeeds[] = [
   },
 ];
 
+export enum ContactTypeEnum {
+  CEL = 'cel',
+  TEL = 'tel',
+  EMAIL = 'email',
+}
+
+export enum GenderEnum {
+  MAN = 'man',
+  WOMAN = 'women',
+}
+
 export const permissionSeeds: IPermissionSeeds[] = [
   {
     name: PERMISSIONS_ENUM.CREATE + TABLES_ENUM.USER,
