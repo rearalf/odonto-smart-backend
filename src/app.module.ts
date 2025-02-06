@@ -18,6 +18,7 @@ import { PersonContactModule } from './person_contact/person_contact.module';
 import { SpecialtyModule } from './specialty/specialty.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { PatientModule } from './patient/patient.module';
+import { DoctorSpecialtyModule } from './doctor-specialty/doctor-specialty.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PatientModule } from './patient/patient.module';
     SpecialtyModule,
     DoctorModule,
     PatientModule,
+    DoctorSpecialtyModule,
   ],
   controllers: [],
   providers: [],

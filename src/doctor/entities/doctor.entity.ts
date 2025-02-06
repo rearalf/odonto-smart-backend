@@ -1,15 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Person } from 'src/person/entities/person.entity';
-import { Specialty } from 'src/specialty/entities/specialty.entity';
 import {
+  Entity,
+  OneToOne,
+  OneToMany,
+  JoinColumn,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
+
+import { DoctorSpecialty } from 'src/doctor-specialty/entities/doctor-specialty.entity';
+import { Person } from 'src/person/entities/person.entity';
 
 @Entity()
 export class Doctor {
@@ -24,9 +26,12 @@ export class Doctor {
   @JoinColumn({ name: 'person_id' })
   person: Person;
 
-  @OneToOne(() => Specialty)
-  @JoinColumn({ name: 'specialty_id' })
-  specialty: Specialty;
+  @OneToMany(() => DoctorSpecialty, (doctorSpecialty) => doctorSpecialty.doctor)
+  @ApiProperty({
+    example: 'Ortodoncia',
+    description: 'Specialty associated with this doctor',
+  })
+  specialty: DoctorSpecialty[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   @ApiProperty({

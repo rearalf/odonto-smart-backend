@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
+import { DoctorSpecialty } from 'src/doctor-specialty/entities/doctor-specialty.entity';
 import {
   Entity,
   Column,
@@ -7,6 +8,7 @@ import {
   DeleteDateColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -40,6 +42,16 @@ export class Specialty {
   })
   @IsString()
   description: string;
+
+  @OneToMany(
+    () => DoctorSpecialty,
+    (doctorSpecialty) => doctorSpecialty.specialty,
+  )
+  @ApiProperty({
+    example: '',
+    description: 'Doctor associated with this specialty',
+  })
+  doctor: DoctorSpecialty[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   @ApiProperty({
