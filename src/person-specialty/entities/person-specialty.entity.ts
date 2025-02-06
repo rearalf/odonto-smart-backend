@@ -1,18 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Doctor } from 'src/doctor/entities/doctor.entity';
-import { Specialty } from 'src/specialty/entities/specialty.entity';
 import {
+  Entity,
+  ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('doctor_specialty')
-export class DoctorSpecialty {
+import { Specialty } from 'src/specialty/entities/specialty.entity';
+import { Person } from 'src/person/entities/person.entity';
+
+@Entity('person_specialty')
+export class PersonSpecialty {
   @PrimaryGeneratedColumn()
   @ApiProperty({
     description: 'Unique identifier of the doctor specialty relationship',
@@ -20,15 +21,15 @@ export class DoctorSpecialty {
   })
   id: number;
 
-  @ManyToOne(() => Doctor, (doctor) => doctor.specialty)
-  @JoinColumn({ name: 'doctor_id' })
+  @ManyToOne(() => Person, (person) => person.specialty)
+  @JoinColumn({ name: 'person_id' })
   @ApiProperty({
-    description: 'The doctor associated with this specialty',
-    type: () => Doctor,
+    description: 'The person associated with this specialty',
+    type: () => Person,
   })
-  doctor: Doctor;
+  person: Person;
 
-  @ManyToOne(() => Specialty, (specialty) => specialty.doctor)
+  @ManyToOne(() => Specialty, (specialty) => specialty.person)
   @JoinColumn({ name: 'specialty_id' })
   @ApiProperty({
     description: 'The specialty associated with this doctor',

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
+import { PersonSpecialty } from 'src/person-specialty/entities/person-specialty.entity';
 import { PersonType } from 'src/person-type/entities/person-type.entity';
 import {
   Entity,
@@ -10,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -39,6 +41,13 @@ export class Person {
   @OneToOne(() => PersonType)
   @JoinColumn({ name: 'person_type_id' })
   personType: PersonType;
+
+  @OneToMany(() => PersonSpecialty, (personSpecialty) => personSpecialty.person)
+  @ApiProperty({
+    example: 1,
+    description: 'Specialty associated with this person',
+  })
+  specialty: PersonSpecialty[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   @ApiProperty({

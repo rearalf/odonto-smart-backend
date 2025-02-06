@@ -1,24 +1,23 @@
-import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
-import { EnvConfiguration } from './config/env.config';
-import { JoiValidationSchema } from './config/joi.validation';
-import typeorm from './config/typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
-import { RoleModule } from './role/role.module';
-import { UserRoleModule } from './user-role/user-role.module';
-import { PermissionModule } from './permission/permission.module';
+import { Module } from '@nestjs/common';
+
+import { PersonSpecialtyModule } from './person-specialty/person-specialty.module';
 import { RolePermissionModule } from './role-permission/role-permission.module';
 import { UserPermissionModule } from './user-permission/user-permission.module';
-import { AuthModule } from './auth/auth.module';
-import { PersonModule } from './person/person.module';
-import { PersonTypeModule } from './person-type/person-type.module';
 import { PersonContactModule } from './person_contact/person_contact.module';
+import { PersonTypeModule } from './person-type/person-type.module';
+import { PermissionModule } from './permission/permission.module';
 import { SpecialtyModule } from './specialty/specialty.module';
-import { DoctorModule } from './doctor/doctor.module';
+import { JoiValidationSchema } from './config/joi.validation';
+import { UserRoleModule } from './user-role/user-role.module';
 import { PatientModule } from './patient/patient.module';
-import { DoctorSpecialtyModule } from './doctor-specialty/doctor-specialty.module';
+import { EnvConfiguration } from './config/env.config';
+import { PersonModule } from './person/person.module';
+import { UserModule } from './user/user.module';
+import { RoleModule } from './role/role.module';
+import { AuthModule } from './auth/auth.module';
+import typeorm from './config/typeorm';
 
 @Module({
   imports: [
@@ -37,18 +36,17 @@ import { DoctorSpecialtyModule } from './doctor-specialty/doctor-specialty.modul
     }),
     UserModule,
     RoleModule,
-    UserRoleModule,
-    PermissionModule,
-    RolePermissionModule,
-    UserPermissionModule,
     AuthModule,
     PersonModule,
+    PatientModule,
+    UserRoleModule,
+    SpecialtyModule,
+    PermissionModule,
     PersonTypeModule,
     PersonContactModule,
-    SpecialtyModule,
-    DoctorModule,
-    PatientModule,
-    DoctorSpecialtyModule,
+    RolePermissionModule,
+    UserPermissionModule,
+    PersonSpecialtyModule,
   ],
   controllers: [],
   providers: [],
