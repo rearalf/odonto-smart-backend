@@ -7,10 +7,12 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+import { ApiSecurity } from '@nestjs/swagger';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 
+@ApiSecurity('access_cookie')
 @Controller('patient')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}

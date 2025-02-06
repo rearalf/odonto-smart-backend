@@ -1,4 +1,4 @@
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiSecurity } from '@nestjs/swagger';
 import {
   Get,
   Post,
@@ -22,6 +22,7 @@ import {
   getAllSpecialtiesSchema,
 } from './schemas/specialty.schemas';
 
+@ApiSecurity('access_cookie')
 @Controller('specialty')
 export class SpecialtyController {
   constructor(private readonly specialtyService: SpecialtyService) {}

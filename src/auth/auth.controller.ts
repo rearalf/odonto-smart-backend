@@ -1,4 +1,5 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiSecurity } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signin.dto';
 import { Request, Response } from 'express';
@@ -35,6 +36,7 @@ export class AuthController {
 
   // FIXME: Delete the database refresh even if it has already expired.
   @Post('logout')
+  @ApiSecurity('access_cookie')
   @UseGuards(JwtAuthGuard)
   async logout(@Req() request: Request, @Res() response: Response) {
     response.clearCookie('access_token');
@@ -48,6 +50,8 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @ApiSecurity('access_cookie')
+  @ApiSecurity('refresh_cookie')
   async refreshToken(@Req() request: Request, @Res() response: Response) {
     const new_tokens = await this.authService.refreshToken(
       request.cookies['access_token'],

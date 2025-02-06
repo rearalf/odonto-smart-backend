@@ -29,6 +29,16 @@ async function bootstrap() {
     .setTitle('Odonto Smart')
     .setDescription('This is the documentation about a odonto smart.')
     .setVersion('0.0.1')
+    .addSecurity('access_cookie', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'access_token',
+    })
+    .addSecurity('refresh_cookie', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'refresh_token',
+    })
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

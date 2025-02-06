@@ -7,7 +7,7 @@ import {
   Delete,
   Controller,
 } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiSecurity } from '@nestjs/swagger';
 
 import { RequirePermissions } from 'src/auth/decorators/permissions.decorator';
 import { PERMISSIONS_ENUM, TABLES_ENUM } from 'src/config/permissions.config';
@@ -16,6 +16,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
 import { RoleService } from './role.service';
 
+@ApiSecurity('access_cookie')
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}

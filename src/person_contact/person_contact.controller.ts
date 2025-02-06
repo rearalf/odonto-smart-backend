@@ -7,10 +7,12 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+import { ApiSecurity } from '@nestjs/swagger';
 import { PersonContactService } from './person_contact.service';
 import { CreatePersonContactDto } from './dto/create-person_contact.dto';
 import { UpdatePersonContactDto } from './dto/update-person_contact.dto';
 
+@ApiSecurity('access_cookie')
 @Controller('person-contact')
 export class PersonContactController {
   constructor(private readonly personContactService: PersonContactService) {}

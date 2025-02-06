@@ -1,4 +1,4 @@
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiSecurity } from '@nestjs/swagger';
 import {
   Get,
   Post,
@@ -16,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
+@ApiSecurity('access_cookie')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
