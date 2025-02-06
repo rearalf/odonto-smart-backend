@@ -1,9 +1,4 @@
-interface IPermissionSeeds {
-  name: string;
-  description: string;
-}
-
-interface IRolesSeeds {
+interface IBasicSeeds {
   name: string;
   description: string;
 }

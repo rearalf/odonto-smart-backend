@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class TypePerson {
+export class PersonType {
   @PrimaryGeneratedColumn()
   @ApiProperty({
     example: 1,

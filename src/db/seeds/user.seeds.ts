@@ -5,11 +5,12 @@ import { EnvConfiguration } from 'src/config/env.config';
 import { UserRole } from 'src/user-role/entities/user-role.entity';
 import { Role } from 'src/role/entities/role.entity';
 import { User } from 'src/user/entities/user.entity';
+import { Person } from 'src/person/entities/person.entity';
 
 class UserSeeds {
   constructor(private readonly entityManager: EntityManager) {}
 
-  async createUsersSeeds(roles: Role[]) {
+  async createUsersSeeds(person: Person, roles: Role[]) {
     if (!Array.isArray(roles)) {
       await this.entityManager.connection.destroy();
       return [];
@@ -21,8 +22,7 @@ class UserSeeds {
     const create = await repository.create({
       email: EnvConfiguration().email,
       password: EnvConfiguration().password,
-      /* name: 'Admin',
-      last_name: 'Admin', */
+      person,
     });
 
     const saved = await repository.save(create);

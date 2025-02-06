@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { TypePerson } from 'src/type-person/entities/type-person.entity';
+import { PersonType } from 'src/person-type/entities/person-type.entity';
 import {
   Entity,
   Column,
@@ -23,22 +23,22 @@ export class Person {
   @IsString()
   first_name: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   @ApiProperty({
     example: 'Nes',
     description: 'The middle name of the person',
   })
   @IsString()
-  middle_name: string;
+  middle_name?: string;
 
   @Column({ type: 'varchar', length: 255 })
   @ApiProperty({ example: 'Quik', description: 'Last name of the person' })
   @IsString()
   last_name: string;
 
-  @OneToOne(() => TypePerson)
-  @JoinColumn({ name: 'type_person_id' })
-  typePerson: TypePerson;
+  @OneToOne(() => PersonType)
+  @JoinColumn({ name: 'person_type_id' })
+  personType: PersonType;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   @ApiProperty({
