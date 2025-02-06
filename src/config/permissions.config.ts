@@ -8,4 +8,5 @@ export enum PERMISSIONS_ENUM {
 export enum TABLES_ENUM {
   USER = '_user',
   ROLE = '_role',
+  SPECIALTY = '_specialty',
 }

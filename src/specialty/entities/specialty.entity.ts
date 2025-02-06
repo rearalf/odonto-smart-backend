@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import {
+  Entity,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -20,14 +20,20 @@ export class Specialty {
 
   @Column({ type: 'varchar', length: 100 })
   @ApiProperty({
-    description: 'The name of the specialty.',
+    minLength: 5,
+    maxLength: 100,
+    type: 'string',
     example: 'Ortodoncia',
+    description: 'The name of the specialty.',
   })
   @IsString()
   name: string;
 
   @Column({ type: 'varchar', length: 255 })
   @ApiProperty({
+    minLength: 10,
+    maxLength: 100,
+    type: 'string',
     description: 'It is the description about the specialty.',
     example:
       'Se enfoca en la corrección de los dientes y mandíbulas desalineadas, utilizando aparatos como frenillos, alineadores y otros dispositivos.',
