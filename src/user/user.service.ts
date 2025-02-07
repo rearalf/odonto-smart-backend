@@ -11,95 +11,28 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserPermission } from 'src/user-permission/entities/user-permission.entity';
 import { Permission } from 'src/permission/entities/permission.entity';
 import { UserRole } from 'src/user-role/entities/user-role.entity';
+import { PersonService } from 'src/person/person.service';
 import { Role } from 'src/role/entities/role.entity';
 import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly personService: PersonService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     return await this.dataSource.transaction(async (manage) => {
-      const userRepository = manage.getRepository(User);
-      const roleRepository = manage.getRepository(Role);
-      const permissionRepository = manage.getRepository(Permission);
-      const pivotPermissionRepository = manage.getRepository(UserPermission);
-      const pivotRoleRepository = manage.getRepository(UserRole);
-
-      const validationEmail = await userRepository.findBy({
-        email: createUserDto.email,
+      const result = this.personService.create(manage, {
+        first_name: createUserDto.first_name,
+        last_name: createUserDto.last_name,
+        middle_name: createUserDto.middle_name,
+        personType: createUserDto.personType,
+        specialty: createUserDto.specialty,
       });
 
-      if (validationEmail.length > 0) {
-        throw new ConflictException(
-          `The email ${createUserDto.email} already exists`,
-        );
-      }
-
-      const createUser = userRepository.create({
-        password: createUserDto.password,
-        // last_name: createUserDto.last_name,
-        email: createUserDto.email,
-        // name: createUserDto.name,
-      });
-
-      const newUser = await userRepository.save(createUser);
-
-      const roles: Role[] = [];
-
-      for (const roleId of createUserDto.role) {
-        const role = await roleRepository
-          .createQueryBuilder('role')
-          .where('role.id = :id', { id: roleId })
-          .select(['role.id', 'role.name', 'role.description'])
-          .getOne();
-
-        if (!role) {
-          throw new NotFoundException(`Role with ID ${roleId} not found`);
-        }
-
-        const create = pivotRoleRepository.create({
-          role,
-          user: newUser,
-        });
-        const saved = await pivotRoleRepository.save(create);
-
-        roles.push(saved.role);
-      }
-
-      const permissions: Permission[] = [];
-
-      for (const permissionId of createUserDto.permission) {
-        const permission = await permissionRepository
-          .createQueryBuilder('permission')
-          .where('permission.id=:id', { id: permissionId })
-          .select([
-            'permission.id',
-            'permission.name',
-            'permission.description',
-          ])
-          .getOne();
-
-        if (!permission)
-          throw new NotFoundException(
-            `Permission with ID ${permissionId} not found`,
-          );
-
-        const create = pivotPermissionRepository.create({
-          permission,
-          user: newUser,
-        });
-
-        const saved = await pivotPermissionRepository.save(create);
-
-        permissions.push(saved.permission);
-      }
-
-      return {
-        roles,
-        permissions,
-        user: newUser,
-      };
+      console.log(result);
     });
   }
 
@@ -135,7 +68,7 @@ export class UserService {
   }
 
   async findUsers() {
-    return await this.dataSource.transaction(async (manage) => {
+    /* return await this.dataSource.transaction(async (manage) => {
       const userRepository = manage.getRepository(User);
 
       const users = await userRepository
@@ -172,11 +105,11 @@ export class UserService {
       }));
 
       return formattedUsers;
-    });
+    }); */
   }
 
-  async updateUser(id: number, updateUserDto: UpdateUserDto) {
-    return await this.dataSource.transaction(async (manage) => {
+  async updateUser(_id: number, _updateUserDto: UpdateUserDto) {
+    /*  return await this.dataSource.transaction(async (manage) => {
       const userRepository = manage.getRepository(User);
       const roleRepository = manage.getRepository(Role);
       const pivotRoleRepository = manage.getRepository(UserRole);
@@ -334,11 +267,11 @@ export class UserService {
         rolesModified,
         permissionModified,
       };
-    });
+    }); */
   }
 
-  async deleteUser(id: number) {
-    return await this.dataSource.transaction(async (manage) => {
+  async deleteUser(_id: number) {
+    /* return await this.dataSource.transaction(async (manage) => {
       const pivotPermissionRepository = manage.getRepository(UserPermission);
       const pivotRoleRepository = manage.getRepository(UserRole);
       const userRespository = manage.getRepository(User);
@@ -370,6 +303,6 @@ export class UserService {
         role: rolesDeleted,
         permission: permissionsDeleted,
       };
-    });
+    }); */
   }
 }

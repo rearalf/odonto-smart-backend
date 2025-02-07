@@ -5,6 +5,7 @@ import { PersonType } from './entities/person-type.entity';
 import { PersonTypeService } from './person-type.service';
 
 @Module({
+  exports: [PersonTypeService],
   providers: [PersonTypeService],
   imports: [TypeOrmModule.forFeature([PersonType])],
 })

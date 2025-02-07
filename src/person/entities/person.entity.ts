@@ -42,12 +42,16 @@ export class Person {
   @JoinColumn({ name: 'person_type_id' })
   personType: PersonType;
 
-  @OneToMany(() => PersonSpecialty, (personSpecialty) => personSpecialty.person)
+  @OneToMany(
+    () => PersonSpecialty,
+    (personSpecialty) => personSpecialty.person,
+    { nullable: true },
+  )
   @ApiProperty({
     example: 1,
     description: 'Specialty associated with this person',
   })
-  specialty: PersonSpecialty[];
+  specialty?: PersonSpecialty[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   @ApiProperty({

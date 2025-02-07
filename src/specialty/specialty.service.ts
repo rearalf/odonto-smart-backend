@@ -56,7 +56,8 @@ export class SpecialtyService {
         ])
         .getOne();
 
-      if (!specialty) throw new NotFoundException(`Speialty not found`);
+      if (!specialty)
+        throw new NotFoundException(`Especialidad no encontrada.`);
 
       return {
         specialty,
@@ -70,7 +71,8 @@ export class SpecialtyService {
 
       const specialty = await this.findOneById(id);
 
-      if (!specialty) throw new NotFoundException(`Speialty not found`);
+      if (!specialty)
+        throw new NotFoundException(`Especialidad no encontrada.`);
 
       const fieldsToUpdate: Partial<Specialty> = {};
 

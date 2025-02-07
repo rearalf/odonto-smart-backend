@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
-import { PermissionService } from '../../permission/permission.service';
+import { PermissionService } from 'src/permission/permission.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -19,7 +19,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isActive = await super.canActivate(context);
+    const isActive = (await super.canActivate(context)) as boolean;
     if (!isActive) return false;
 
     const requiredPermissions = this.reflector.get<string[]>(
@@ -32,12 +32,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const request = context.switchToHttp().getRequest();
     const user = request.user as { id: number; roles: { id: number }[] };
 
-    const permissions = await this.getUserPermissions(user);
+    const permissions = new Set(await this.getUserPermissions(user));
 
-    if (
-      permissions.length === 0 ||
-      !this.hasRequiredPermissions(permissions, requiredPermissions)
-    ) {
+    if (!this.hasRequiredPermissions(permissions, requiredPermissions)) {
       throw new UnauthorizedException(
         'Acceso denegado: Permisos insuficientes.',
       );
@@ -55,34 +52,33 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         this.permissionService.getPermissionsByRoleId(role.id),
       ),
     );
-    const permissionsFromRoles = rolePermissions.flat();
-    const permissionsFromUser =
-      await this.permissionService.getPermissionsByUserId(user.id);
 
-    return [...permissionsFromRoles, ...permissionsFromUser];
+    const userPermissions = await this.permissionService.getPermissionsByUserId(
+      user.id,
+    );
+
+    return [...new Set([...rolePermissions.flat(), ...userPermissions])];
   }
 
   private hasRequiredPermissions(
-    permissions: string[],
+    permissions: Set<string>,
     requiredPermissions: string[],
   ): boolean {
     return requiredPermissions.every((permission) =>
-      permissions.includes(permission),
+      permissions.has(permission),
     );
   }
 
   handleRequest(err, user, info) {
-    if (info) {
-      const messages = { statusCode: 401 };
-      const message = info.expiredAt
-        ? `La sesión ha expirado. Expirará el ${new Date(info.expiredAt).toLocaleString()}`
-        : 'La sesión no existe.';
-
-      throw new UnauthorizedException({ ...messages, message });
-    }
-
     if (err || !user) {
       throw err || new UnauthorizedException();
+    }
+
+    if (info?.expiredAt) {
+      throw new UnauthorizedException({
+        statusCode: 401,
+        message: `La sesión ha expirado el ${new Date(info.expiredAt).toLocaleString()}.`,
+      });
     }
 
     return user;
