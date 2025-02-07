@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, In } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { RolePermission } from 'src/role-permission/entities/role-permission.entity';
 import { Permission } from 'src/permission/entities/permission.entity';
@@ -10,7 +11,11 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Injectable()
 export class RoleService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+    private readonly dataSource: DataSource,
+  ) {}
 
   async create(createRoleDto: CreateRoleDto) {
     return await this.dataSource.transaction(async (manage) => {
@@ -68,30 +73,26 @@ export class RoleService {
   }
 
   async findRoleById(id: number) {
-    return await this.dataSource.transaction(async (manage) => {
-      const roleRepository = manage.getRepository(Role);
+    const role = await this.roleRepository
+      .createQueryBuilder('role')
+      .leftJoinAndSelect('role.permission', 'rolePermission')
+      .leftJoinAndSelect('rolePermission.permission', 'permission')
+      .select(['role.id', 'role.name', 'role.description'])
+      .addSelect([
+        'rolePermission.id',
+        'permission.id',
+        'permission.name',
+        'permission.description',
+      ])
+      .where('role.id = :id', { id })
+      .andWhere('role.deleted_at IS NULL')
+      .andWhere('rolePermission.deleted_at IS NULL')
+      .andWhere('permission.deleted_at IS NULL')
+      .getOne();
 
-      const role = await roleRepository
-        .createQueryBuilder('role')
-        .leftJoinAndSelect('role.permission', 'rolePermission')
-        .leftJoinAndSelect('rolePermission.permission', 'permission')
-        .select(['role.id', 'role.name', 'role.description'])
-        .addSelect([
-          'rolePermission.id',
-          'permission.id',
-          'permission.name',
-          'permission.description',
-        ])
-        .where('role.id = :id', { id })
-        .andWhere('role.deleted_at IS NULL')
-        .andWhere('rolePermission.deleted_at IS NULL')
-        .andWhere('permission.deleted_at IS NULL')
-        .getOne();
+    if (!role) throw new NotFoundException('Rol no encontrado');
 
-      if (!role) throw new NotFoundException(`Role with ID ${id} not found`);
-
-      return role;
-    });
+    return role;
   }
 
   async findRoles() {

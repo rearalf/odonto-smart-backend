@@ -23,17 +23,18 @@ export class PersonTypeService {
   }
 
   async findOneById(id: number) {
-    if (!id || typeof id === 'number')
-      throw new NotFoundException('Id no valido');
+    if (!id || typeof id !== 'number')
+      throw new NotFoundException('Tipo de persona no encontrado.');
 
     const personType = await this.personTypeRepository
       .createQueryBuilder('person_type')
-      .where('specialty.id = :id', { id })
+      .where('person_type.id = :id', { id })
       .select(['person_type.id', 'person_type.name', 'person_type.description'])
       .getOne();
 
-    return {
-      personType,
-    };
+    if (!personType)
+      throw new NotFoundException('Tipo de persona no encontrado.');
+
+    return personType;
   }
 }

@@ -1,57 +1,60 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { PersonSpecialty } from 'src/person-specialty/entities/person-specialty.entity';
 import { PersonTypeService } from 'src/person-type/person-type.service';
 import { SpecialtyService } from '../specialty/specialty.service';
+
+import { PersonSpecialty } from 'src/person-specialty/entities/person-specialty.entity';
+import { Person } from './entities/person.entity';
+
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
-import { Person } from './entities/person.entity';
 
 @Injectable()
 export class PersonService {
   constructor(
+    @InjectRepository(Person)
+    private readonly personRepository: Repository<Person>,
     private readonly personTypeService: PersonTypeService,
     private readonly specialtyService: SpecialtyService,
   ) {}
 
-  async create(entityManager: EntityManager, createPersonDto: CreatePersonDto) {
-    const repository = entityManager.getRepository(Person);
-    const pivotSpecialty = entityManager.getRepository(PersonSpecialty);
-
-    const { personType } = await this.personTypeService.findOneById(
+  async create(createPersonDto: CreatePersonDto) {
+    const personType = await this.personTypeService.findOneById(
       createPersonDto.personType,
     );
 
-    if (personType)
-      throw new NotFoundException('No se encontro ese tipo de persona.');
+    if (!personType)
+      throw new NotFoundException('Tipo de persona no encontrado.');
 
-    const createdPerson = repository.create({
+    const createdPerson = this.personRepository.create({
       first_name: createPersonDto.first_name,
       last_name: createPersonDto.last_name,
       middle_name: createPersonDto.middle_name,
       personType,
     });
 
-    // const newPerson = await repository.save(createdPerson);
-
     const specialties: PersonSpecialty[] = [];
 
-    if (createPersonDto.specialty) {
+    /* if (createPersonDto.specialty) {
       for (const specialtyId of createPersonDto.specialty) {
         const { specialty } =
           await this.specialtyService.findOneById(specialtyId);
 
         const createPivot = pivotSpecialty.create({
-          person: createdPerson, // TODO: Cambiar esto
+          person: createdPerson,
           specialty,
         });
 
-        // const newPivotSpecialty = await pivotSpecialty.save(createPivot);
-
         specialties.push(createPivot);
       }
-    }
+    } */
+
+    // const newPerson = await repository.save(createdPerson);
+    // if (specialties.length > 0) {
+    //   await pivotSpecialty.save(specialties);
+    // }
 
     return {
       person: {

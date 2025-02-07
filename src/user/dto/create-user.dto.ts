@@ -1,12 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsArray,
   Matches,
-  IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+
 import { CreatePersonDto } from 'src/person/dto/create-person.dto';
 
 export class CreateUserDto extends CreatePersonDto {
@@ -28,14 +28,6 @@ export class CreateUserDto extends CreatePersonDto {
       'The password must have a Uppercase, lowercase letter and a number',
   })
   password: string;
-
-  @ApiProperty({ example: 'John', description: 'First name of the user' })
-  @IsString()
-  name: string;
-
-  @ApiProperty({ example: 'Doe', description: 'Last name of the user' })
-  @IsString()
-  last_name: string;
 
   @ApiProperty({
     example: '1, 2, 3',

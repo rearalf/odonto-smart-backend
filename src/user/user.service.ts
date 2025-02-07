@@ -1,39 +1,74 @@
-import { DataSource, In } from 'typeorm';
+import { DataSource } from 'typeorm';
 import {
+  Injectable,
   NotFoundException,
   ConflictException,
-  Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-import { UserPermission } from 'src/user-permission/entities/user-permission.entity';
-import { Permission } from 'src/permission/entities/permission.entity';
-import { UserRole } from 'src/user-role/entities/user-role.entity';
+// import { UserPermission } from 'src/user-permission/entities/user-permission.entity';
+// import { Permission } from 'src/permission/entities/permission.entity';
+// import { UserRole } from 'src/user-role/entities/user-role.entity';
+import { UserRoleService } from 'src/user-role/user-role.service';
 import { PersonService } from 'src/person/person.service';
 import { Role } from 'src/role/entities/role.entity';
+import { RoleService } from '../role/role.service';
 import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly dataSource: DataSource,
+    private readonly roleService: RoleService,
     private readonly personService: PersonService,
+    private readonly userRoleService: UserRoleService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    return await this.dataSource.transaction(async (manage) => {
-      const result = this.personService.create(manage, {
-        first_name: createUserDto.first_name,
-        last_name: createUserDto.last_name,
-        middle_name: createUserDto.middle_name,
-        personType: createUserDto.personType,
-        specialty: createUserDto.specialty,
-      });
+    try {
+      return await this.dataSource.transaction(async (entityManager) => {
+        const userRepository = entityManager.getRepository(User);
 
-      console.log(result);
-    });
+        const { person } = await this.personService.create(createUserDto);
+
+        const validationEmail = await userRepository.findBy({
+          email: createUserDto.email,
+        });
+
+        if (validationEmail.length > 0) {
+          throw new ConflictException(
+            `El correo ${createUserDto.email} esta duplicado.`,
+          );
+        }
+
+        const createUser = userRepository.create({
+          password: createUserDto.password,
+          email: createUserDto.email,
+        });
+
+        const roles: Role[] = [];
+
+        for (const roleId of createUserDto.role) {
+          const role = await this.roleService.findRoleById(roleId);
+
+          const createdUserRole = await this.userRoleService.create(
+            role,
+            createUser,
+          );
+
+          roles.push(createdUserRole.role);
+        }
+
+        return { ...person, ...createUser, roles: [...roles] };
+      });
+    } catch (error) {
+      throw (
+        error || new InternalServerErrorException('Error en la transacción')
+      );
+    }
   }
 
   async findUserById(id: number) {
