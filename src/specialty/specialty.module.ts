@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { SpecialtyService } from './specialty.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { SpecialtyController } from './specialty.controller';
-// import { AuthModule } from 'src/auth/auth.module';
+import { Specialty } from './entities/specialty.entity';
+import { SpecialtyService } from './specialty.service';
 
 @Module({
-  // imports: [AuthModule],
+  imports: [TypeOrmModule.forFeature([Specialty])],
   exports: [SpecialtyService],
   providers: [SpecialtyService],
   controllers: [SpecialtyController],

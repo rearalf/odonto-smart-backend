@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { PersonSpecialtyService } from '../person-specialty/person-specialty.service';
 import { PersonTypeService } from 'src/person-type/person-type.service';
 import { SpecialtyService } from '../specialty/specialty.service';
 
-import { PersonSpecialty } from 'src/person-specialty/entities/person-specialty.entity';
+import { Specialty } from 'src/specialty/entities/specialty.entity';
 import { Person } from './entities/person.entity';
 
 import { CreatePersonDto } from './dto/create-person.dto';
@@ -16,6 +21,7 @@ export class PersonService {
   constructor(
     @InjectRepository(Person)
     private readonly personRepository: Repository<Person>,
+    private readonly personSpecialtyService: PersonSpecialtyService,
     private readonly personTypeService: PersonTypeService,
     private readonly specialtyService: SpecialtyService,
   ) {}
@@ -35,30 +41,33 @@ export class PersonService {
       personType,
     });
 
-    const specialties: PersonSpecialty[] = [];
+    const specialties: Specialty[] = [];
 
-    /* if (createPersonDto.specialty) {
-      for (const specialtyId of createPersonDto.specialty) {
-        const { specialty } =
-          await this.specialtyService.findOneById(specialtyId);
+    if (personType.name === 'Doctor') {
+      if (!createPersonDto.specialty)
+        throw new BadRequestException(
+          'Si es doctor deberia tener una especialidad.',
+        );
 
-        const createPivot = pivotSpecialty.create({
-          person: createdPerson,
+      const specialtiesFilter = [...new Set(createPersonDto.specialty)];
+
+      for (const specialtyId of specialtiesFilter) {
+        const specialty = await this.specialtyService.findOneById(specialtyId);
+
+        const savedSpecialty = await this.personSpecialtyService.create(
           specialty,
-        });
+          createdPerson,
+        );
 
-        specialties.push(createPivot);
+        specialties.push(savedSpecialty.specialty);
       }
-    } */
+    }
 
-    // const newPerson = await repository.save(createdPerson);
-    // if (specialties.length > 0) {
-    //   await pivotSpecialty.save(specialties);
-    // }
+    const savedPerson = await this.personRepository.save(createdPerson);
 
     return {
       person: {
-        ...createdPerson,
+        ...savedPerson,
         specialties,
       },
     };

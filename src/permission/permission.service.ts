@@ -1,14 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import {
+  Inject,
+  forwardRef,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { RoleService } from 'src/role/role.service';
 import { UserService } from 'src/user/user.service';
+import { Permission } from './entities/permission.entity';
 
 @Injectable()
 export class PermissionService {
   constructor(
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
     private readonly dataSource: DataSource,
     private readonly roleService: RoleService,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
   ) {}
 
@@ -34,5 +44,16 @@ export class PermissionService {
 
       return permissionsNames;
     });
+  }
+
+  async findById(id: number) {
+    const permission = await this.permissionRepository
+      .createQueryBuilder('permission')
+      .where('permission.id = :id', { id })
+      .getOne();
+
+    if (!permission) throw new NotFoundException('Permiso no encontrado.');
+
+    return permission;
   }
 }

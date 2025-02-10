@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
+
+import { UserRole } from './entities/user-role.entity';
 import { Role } from 'src/role/entities/role.entity';
 import { User } from 'src/user/entities/user.entity';
-import { UserRole } from './entities/user-role.entity';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserRoleService {
@@ -18,8 +19,8 @@ export class UserRoleService {
       user,
     });
 
-    // const saved = await this.userRoleRepository.save(createdRole);
+    const saved = await this.userRoleRepository.save(createdRole);
 
-    return createdRole;
+    return saved;
   }
 }

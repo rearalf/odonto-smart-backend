@@ -12,7 +12,6 @@ import { User } from 'src/user/entities/user.entity';
 import { UserSession } from './entities/user-session.entity';
 
 import { PermissionModule } from 'src/permission/permission.module';
-import { PermissionService } from 'src/permission/permission.service';
 import { UserModule } from 'src/user/user.module';
 import { RoleModule } from 'src/role/role.module';
 
@@ -29,9 +28,9 @@ import {
     JwtModule.registerAsync(jwtModuleAsyncOptions),
     forwardRef(() => UserModule),
     forwardRef(() => RoleModule),
-    forwardRef(() => PermissionModule), // Si depende del servicio, debe estar en forwardRef
+    PermissionModule, // Si depende del servicio, debe estar en forwardRef
   ],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard, PermissionService], // Se agrega el guard como provider
+  providers: [AuthService, JwtStrategy, JwtAuthGuard], // Se agrega el guard como provider
   controllers: [AuthController],
   exports: [AuthService, JwtModule, PassportModule, JwtAuthGuard], // Se exporta el guard si otros módulos lo usan
 })

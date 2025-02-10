@@ -1,6 +1,7 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 
+import { PersonSpecialtyModule } from 'src/person-specialty/person-specialty.module';
 import { PersonTypeModule } from 'src/person-type/person-type.module';
 import { SpecialtyModule } from 'src/specialty/specialty.module';
 
@@ -16,6 +17,7 @@ import { Person } from './entities/person.entity';
   imports: [
     PersonTypeModule,
     SpecialtyModule,
+    PersonSpecialtyModule,
     TypeOrmModule.forFeature([Person]),
   ],
 })

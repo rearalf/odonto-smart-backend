@@ -1,12 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSpecialtyDto } from './dto/create-specialty.dto';
 import { UpdateSpecialtyDto } from './dto/update-specialty.dto';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Specialty } from './entities/specialty.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class SpecialtyService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    @InjectRepository(Specialty)
+    private readonly specialtyRepository: Repository<Specialty>,
+  ) {}
 
   async create(createSpecialtyDto: CreateSpecialtyDto) {
     return await this.dataSource.transaction(async (manage) => {
@@ -41,28 +46,21 @@ export class SpecialtyService {
   }
 
   async findOneById(id: number) {
-    return await this.dataSource.transaction(async (manage) => {
-      const repository = manage.getRepository(Specialty);
+    const specialty = await this.specialtyRepository
+      .createQueryBuilder('specialty')
+      .where('specialty.id = :id', { id })
+      .select([
+        'specialty.id',
+        'specialty.name',
+        'specialty.description',
+        'specialty.create_at',
+        'specialty.update_at',
+      ])
+      .getOne();
 
-      const specialty = await repository
-        .createQueryBuilder('specialty')
-        .where('specialty.id = :id', { id })
-        .select([
-          'specialty.id',
-          'specialty.name',
-          'specialty.description',
-          'specialty.create_at',
-          'specialty.update_at',
-        ])
-        .getOne();
+    if (!specialty) throw new NotFoundException(`Especialidad no encontrada.`);
 
-      if (!specialty)
-        throw new NotFoundException(`Especialidad no encontrada.`);
-
-      return {
-        specialty,
-      };
-    });
+    return specialty;
   }
 
   async update(id: number, updateSpecialtyDto: UpdateSpecialtyDto) {
@@ -92,7 +90,7 @@ export class SpecialtyService {
 
       return {
         affected: updated.affected,
-        specialty: specialtyUpdated.specialty,
+        specialty: specialtyUpdated,
       };
     });
   }
@@ -112,7 +110,7 @@ export class SpecialtyService {
 
       return {
         affected: deleted.affected,
-        specialty: specialty.specialty,
+        specialty: specialty,
       };
     });
   }

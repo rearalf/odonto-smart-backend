@@ -6,25 +6,28 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-
-// import { UserPermission } from 'src/user-permission/entities/user-permission.entity';
-// import { Permission } from 'src/permission/entities/permission.entity';
-// import { UserRole } from 'src/user-role/entities/user-role.entity';
+import { UserPermissionService } from 'src/user-permission/user-permission.service';
+import { PermissionService } from '../permission/permission.service';
 import { UserRoleService } from 'src/user-role/user-role.service';
 import { PersonService } from 'src/person/person.service';
-import { Role } from 'src/role/entities/role.entity';
 import { RoleService } from '../role/role.service';
+
+import { Permission } from 'src/permission/entities/permission.entity';
+import { Role } from 'src/role/entities/role.entity';
 import { User } from './entities/user.entity';
+
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly dataSource: DataSource,
-    private readonly roleService: RoleService,
-    private readonly personService: PersonService,
+    private readonly userPermissionService: UserPermissionService,
+    private readonly permissionService: PermissionService,
     private readonly userRoleService: UserRoleService,
+    private readonly personService: PersonService,
+    private readonly roleService: RoleService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -47,6 +50,7 @@ export class UserService {
         const createUser = userRepository.create({
           password: createUserDto.password,
           email: createUserDto.email,
+          person,
         });
 
         const roles: Role[] = [];
@@ -62,7 +66,28 @@ export class UserService {
           roles.push(createdUserRole.role);
         }
 
-        return { ...person, ...createUser, roles: [...roles] };
+        const permissions: Permission[] = [];
+
+        for (const permissionId of createUserDto.permission) {
+          const permission =
+            await this.permissionService.findById(permissionId);
+
+          const savedRelation = await this.userPermissionService.create(
+            createUser,
+            permission,
+          );
+
+          permissions.push(savedRelation.permission);
+        }
+
+        const saved = userRepository.save(createUser);
+
+        return {
+          ...person,
+          ...saved,
+          roles: [...roles],
+          permissions: [...permissions],
+        };
       });
     } catch (error) {
       throw (
