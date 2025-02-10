@@ -53,8 +53,8 @@ export class SpecialtyService {
         'specialty.id',
         'specialty.name',
         'specialty.description',
-        'specialty.create_at',
-        'specialty.update_at',
+        'specialty.created_at',
+        'specialty.updated_at',
       ])
       .getOne();
 

@@ -1,6 +1,3 @@
-import { Person } from 'src/person/entities/person.entity';
-import { IsDate, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   Entity,
@@ -11,7 +8,10 @@ import {
   DeleteDateColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Person } from 'src/person/entities/person.entity';
+import { IsDate, IsString } from 'class-validator';
 import { GenderEnum } from 'src/db/seeds/seeds';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Patient {
@@ -56,7 +56,7 @@ export class Patient {
     example: 'The patient has never been to the dentist.',
     description: 'Describ the history  patient.',
   })
-  medialHistory?: string;
+  medicalHistory?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   @IsString()
@@ -71,7 +71,7 @@ export class Patient {
     description: 'Timestamp when the patient was created',
     example: '2025-01-01T12:00:00Z',
   })
-  create_at: Date;
+  created_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamptz',
@@ -82,7 +82,7 @@ export class Patient {
     description: 'Timestamp when the patient was update',
     example: '2025-01-01T12:00:00Z',
   })
-  update_at: Date;
+  updated_at: Date;
 
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
   @ApiProperty({

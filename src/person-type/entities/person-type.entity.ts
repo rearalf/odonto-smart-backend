@@ -39,7 +39,7 @@ export class PersonType {
     description: 'Timestamp when the user was created',
     example: '2025-01-01T12:00:00Z',
   })
-  create_at: Date;
+  created_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamptz',
@@ -50,7 +50,7 @@ export class PersonType {
     description: 'Timestamp when the user was update',
     example: '2025-01-01T12:00:00Z',
   })
-  update_at: Date;
+  updated_at: Date;
 
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
   @ApiProperty({

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { PersonContactService } from './person_contact.service';
-import { PersonContactController } from './person_contact.controller';
+import { PersonContactService } from './person-contact.service';
+import { PersonContactController } from './person-contact.controller';
 
 @Module({
   controllers: [PersonContactController],

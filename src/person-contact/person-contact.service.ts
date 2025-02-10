@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePersonContactDto } from './dto/create-person_contact.dto';
-import { UpdatePersonContactDto } from './dto/update-person_contact.dto';
+import { CreatePersonContactDto } from './dto/create-person-contact.dto';
+import { UpdatePersonContactDto } from './dto/update-person-contact.dto';
 
 @Injectable()
 export class PersonContactService {

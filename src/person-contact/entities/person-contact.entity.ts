@@ -1,17 +1,17 @@
+import {
+  Entity,
+  Column,
+  OneToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Person } from 'src/person/entities/person.entity';
+import { ContactTypeEnum } from 'src/db/seeds/seeds';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { ContactTypeEnum } from 'src/db/seeds/seeds';
-import { Person } from 'src/person/entities/person.entity';
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
 
 @Entity()
 export class PersonContact {
@@ -53,7 +53,7 @@ export class PersonContact {
     description: 'Timestamp when the contact was created',
     example: '2025-01-01T12:00:00Z',
   })
-  create_at: Date;
+  created_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamptz',
@@ -64,7 +64,7 @@ export class PersonContact {
     description: 'Timestamp when the contact was update',
     example: '2025-01-01T12:00:00Z',
   })
-  update_at: Date;
+  updated_at: Date;
 
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
   @ApiProperty({

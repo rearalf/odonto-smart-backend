@@ -8,9 +8,9 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ApiSecurity } from '@nestjs/swagger';
-import { PersonContactService } from './person_contact.service';
-import { CreatePersonContactDto } from './dto/create-person_contact.dto';
-import { UpdatePersonContactDto } from './dto/update-person_contact.dto';
+import { PersonContactService } from './person-contact.service';
+import { CreatePersonContactDto } from './dto/create-person-contact.dto';
+import { UpdatePersonContactDto } from './dto/update-person-contact.dto';
 
 @ApiSecurity('access_cookie')
 @Controller('person-contact')

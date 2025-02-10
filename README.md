@@ -57,9 +57,6 @@ A continuación se describen los scripts disponibles en package.json para facili
 
 ## Posibles Mejoras
 
-### ❌ Errores en convenciones de nombres de columnas:
-Algunas columnas usan `create_at` y `update_at`, pero otras usan `created_at` y `updated_at`. Para uniformidad, todas deberían seguir la misma convención, preferiblemente `created_at` y `updated_at`.
-
 ### ❌ Eliminación en cascada inconsistente:
 - `user_session.userId` tiene `ON DELETE CASCADE`, lo cual está bien para limpiar sesiones cuando un usuario se borra.
 - Sin embargo, otras relaciones como `user.person_id`, `person.person_type_id` o `patient.person_id` no tienen `ON DELETE CASCADE`.
@@ -68,10 +65,7 @@ Algunas columnas usan `create_at` y `update_at`, pero otras usan `created_at` y 
 ### ❌ Restricción `UNIQUE` en `person_type_id`
 - En la tabla `person`, la columna `person_type_id` tiene la restricción `UNIQUE`, lo que significa que solo puede haber una persona por tipo. Esto probablemente no es lo que quieres.
 
-- Si un `person_type` puede aplicar a varias personas (por ejemplo, múltiples doctores), deberías eliminar esta restricción.
-
-### ❌ Campo `medialHistory` mal escrito
-En `patient`, la columna `medialHistory` probablemente debería ser `medicalHistory`.
+- Si un `person_type` puede aplicar a varias personas (por ejemplo, múltiples doctores), deberías eliminar esta.
 
 ### ❌ Optimización de la tabla `person_contact`
 - Actualmente tiene una restricción `UNIQUE ("person_id")`, lo que implica que cada persona solo puede tener un contacto.

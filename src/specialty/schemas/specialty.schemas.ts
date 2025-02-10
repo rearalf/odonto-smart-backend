@@ -31,8 +31,8 @@ export const getSpecialByIdSchema: ApiResponseOptions = {
         example:
           'Se enfoca en la corrección de los dientes y mandíbulas desalineadas, utilizando aparatos como frenillos, alineadores y otros dispositivos.',
       },
-      create_at: { type: 'date', example: '2025-02-06T16:01:14.448Z' },
-      update_at: { type: 'date', example: '2025-02-06T16:01:14.448Z' },
+      created_at: { type: 'date', example: '2025-02-06T16:01:14.448Z' },
+      updated_at: { type: 'date', example: '2025-02-06T16:01:14.448Z' },
     },
   },
 };
@@ -49,8 +49,8 @@ const sharedShemca = {
         example:
           'Se enfoca en la corrección de los dientes y mandíbulas desalineadas, utilizando aparatos como frenillos, alineadores y otros dispositivos.',
       },
-      create_at: { type: 'date', example: '2025-02-06T16:01:14.448Z' },
-      update_at: { type: 'date', example: '2025-02-06T16:01:14.448Z' },
+      created_at: { type: 'date', example: '2025-02-06T16:01:14.448Z' },
+      updated_at: { type: 'date', example: '2025-02-06T16:01:14.448Z' },
     },
   },
 };

@@ -5,7 +5,7 @@ import { Module } from '@nestjs/common';
 import { PersonSpecialtyModule } from './person-specialty/person-specialty.module';
 import { RolePermissionModule } from './role-permission/role-permission.module';
 import { UserPermissionModule } from './user-permission/user-permission.module';
-import { PersonContactModule } from './person_contact/person_contact.module';
+import { PersonContactModule } from './person-contact/person-contact.module';
 import { PersonTypeModule } from './person-type/person-type.module';
 import { PermissionModule } from './permission/permission.module';
 import { SpecialtyModule } from './specialty/specialty.module';
