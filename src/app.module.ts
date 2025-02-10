@@ -17,6 +17,7 @@ import { PersonModule } from './person/person.module';
 import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
 import { AuthModule } from './auth/auth.module';
+import { AppointmentModule } from './appointment/appointment.module';
 import typeorm from './config/typeorm';
 
 @Module({
@@ -47,6 +48,7 @@ import typeorm from './config/typeorm';
     RolePermissionModule,
     UserPermissionModule,
     PersonSpecialtyModule,
+    AppointmentModule,
   ],
   controllers: [],
   providers: [],

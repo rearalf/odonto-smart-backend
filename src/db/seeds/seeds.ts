@@ -18,6 +18,12 @@ export enum GenderEnum {
   WOMAN = 'women',
 }
 
+export enum AppointmentStatus {
+  SCHEDULED = 'scheduled',
+  COMPLETED = 'completed',
+  CANCELED = 'canceled',
+}
+
 export const permissionSeeds: IBasicSeeds[] = [
   {
     name: PERMISSIONS_ENUM.CREATE + TABLES_ENUM.USER,
