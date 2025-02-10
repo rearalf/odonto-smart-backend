@@ -5,13 +5,13 @@ import { PersonType } from 'src/person-type/entities/person-type.entity';
 import {
   Entity,
   Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
   PrimaryGeneratedColumn,
-  OneToOne,
-  JoinColumn,
-  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -38,7 +38,7 @@ export class Person {
   @IsString()
   last_name: string;
 
-  @OneToOne(() => PersonType)
+  @ManyToOne(() => PersonType)
   @JoinColumn({ name: 'person_type_id' })
   personType: PersonType;
 

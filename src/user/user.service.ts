@@ -83,13 +83,19 @@ export class UserService {
           permissions.push(savedRelation.permission);
         }
 
-        const saved = userRepository.save(createUser);
+        const saved = await userRepository.save(createUser);
 
         return {
-          ...person,
-          ...saved,
-          roles: [...roles],
-          permissions: [...permissions],
+          id: saved.id,
+          email: saved.email,
+          person_id: saved.person.id,
+          first_name: saved.person.first_name,
+          middle_name: saved.person.middle_name,
+          last_name: saved.person.last_name,
+          person_type_id: saved.person.personType.id,
+          person_type_name: saved.person.personType.name,
+          roles: roles,
+          permissions: permissions,
         };
       });
     } catch (error) {
