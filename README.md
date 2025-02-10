@@ -1,99 +1,79 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Odonto Smart Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este es el backend de Odonto Smart, un sistema para la gestión de clínicas dentales desarrollado con NestJS y TypeScript.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Variables de entorno
 
-## Description
+El sistema utiliza un archivo .env para configurar los parámetros clave del entorno. A continuación se describen las variables necesarias:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Servidor
 
-## Project setup
+- `PORT=3000` - Puerto en el que se ejecuta la aplicación.
 
-```bash
-$ npm install
-```
+### Base de datos
 
-## Compile and run the project
+- `DB_NAME=odonto` - Nombre de la base de datos.
+- `CONTAINER_NAME=odonto-smart` - Nombre del contenedor de la base de datos.
+- `DB_HOST=localhost` - Host de la base de datos.
+- `DB_USERNAME=root` - Usuario de la base de datos.
+- `DB_PASSWORD=root` - Contraseña de la base de datos.
+- `DB_PORT=5432` - Puerto en el que corre la base de datos.
+- `DB_TYPE=postgres` - Tipo de base de datos utilizada (PostgreSQL).
+- `LOGGING=true` - Indica si se deben registrar logs de la base de datos.
 
-```bash
-# development
-$ npm run start
+### Configuración de seeders
 
-# watch mode
-$ npm run start:dev
+- `SEED_EMAIL=admin.admin@gmail.com` - Correo electrónico del usuario administrador inicial.
+- `SEED_PASSWORD=Admin` - Contraseña del usuario administrador inicial.
 
-# production mode
-$ npm run start:prod
-```
+### Configuración de JWT
 
-## Run tests
+- `JWT_SECRET=secret-key` - Clave secreta para la firma de los tokens JWT.
+- `JWT_EXPIRESIN=2h` - Tiempo de expiración del access token.
+- `JWT_EXPIRENSIN_REFRESH=7d` - Tiempo de expiración del refresh token.
 
-```bash
-# unit tests
-$ npm run test
+## Scripts de package.json
 
-# e2e tests
-$ npm run test:e2e
+A continuación se describen los scripts disponibles en package.json para facilitar el desarrollo y la administración del proyecto:
 
-# test coverage
-$ npm run test:cov
-```
+- `build:` Compila el código TypeScript en JavaScript.
+- `start:` Inicia la aplicación en modo producción.
+- `start:dev:` Inicia la aplicación en modo desarrollo con recarga automática.
+- `start:debug:` Inicia la aplicación en modo depuración.
+- `test:` Ejecuta los tests unitarios con Jest.
+- `test:watch:` Ejecuta los tests en modo observación para desarrollo.
+- `test:cov:` Genera el reporte de cobertura de tests.
+- `test:debug:` Inicia los tests en modo depuración.
+- `test:e2e:` Ejecuta los tests end-to-end.
+- `format:` Aplica Prettier para formatear el código.
+- `lint:` Ejecuta ESLint para revisar errores en el código y los corrige.
+- `prepare:` Configura Husky para la gestión de hooks en Git.
+- `typeorm:` Ejecuta comandos de TypeORM con ts-node.
+- `migration:run:` Ejecuta las migraciones de TypeORM.
+- `migration:generate:` Genera una nueva migración basada en los cambios detectados en las entidades.
+- `migration:create:` Crea una nueva migración vacía.
+- `migration:revert:` Revierte la última migración ejecutada.
+- `seeds:` Ejecuta los seeders de la base de datos.
 
-## Deployment
+## Posibles Mejoras
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### ❌ Errores en convenciones de nombres de columnas:
+Algunas columnas usan `create_at` y `update_at`, pero otras usan `created_at` y `updated_at`. Para uniformidad, todas deberían seguir la misma convención, preferiblemente `created_at` y `updated_at`.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### ❌ Eliminación en cascada inconsistente:
+- `user_session.userId` tiene `ON DELETE CASCADE`, lo cual está bien para limpiar sesiones cuando un usuario se borra.
+- Sin embargo, otras relaciones como `user.person_id`, `person.person_type_id` o `patient.person_id` no tienen `ON DELETE CASCADE`.
+- Evalúa si algunas deberían eliminarse en cascada para evitar registros huérfanos.
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+### ❌ Restricción `UNIQUE` en `person_type_id`
+- En la tabla `person`, la columna `person_type_id` tiene la restricción `UNIQUE`, lo que significa que solo puede haber una persona por tipo. Esto probablemente no es lo que quieres.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+- Si un `person_type` puede aplicar a varias personas (por ejemplo, múltiples doctores), deberías eliminar esta restricción.
 
-## Resources
+### ❌ Campo `medialHistory` mal escrito
+En `patient`, la columna `medialHistory` probablemente debería ser `medicalHistory`.
 
-Check out a few resources that may come in handy when working with NestJS:
+### ❌ Optimización de la tabla `person_contact`
+- Actualmente tiene una restricción `UNIQUE ("person_id")`, lo que implica que cada persona solo puede tener un contacto.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Si quieres que una persona pueda tener múltiples teléfonos o correos, esta restricción debería eliminarse.
