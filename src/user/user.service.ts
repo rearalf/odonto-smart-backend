@@ -1,4 +1,5 @@
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
   Injectable,
   NotFoundException,
@@ -22,6 +23,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Injectable()
 export class UserService {
   constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly userPermissionService: UserPermissionService,
     private readonly permissionService: PermissionService,
     private readonly userRoleService: UserRoleService,
@@ -97,75 +100,120 @@ export class UserService {
   }
 
   async findUserById(id: number) {
-    return await this.dataSource.transaction(async (manage) => {
-      const userRepository = manage.getRepository(User);
+    const user: User = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'userRole')
+      .leftJoinAndSelect('userRole.role', 'role')
+      .leftJoinAndSelect('user.permission', 'userPermission')
+      .leftJoinAndSelect('userPermission.permission', 'permission')
+      .leftJoinAndSelect('user.person', 'person')
+      .leftJoinAndSelect('person.personType', 'personType')
+      .select(['user.id', 'user.email', 'user.created_at', 'user.updated_at'])
+      .addSelect([
+        'person.id',
+        'person.first_name',
+        'person.middle_name',
+        'person.last_name',
+        'personType.id',
+        'personType.name',
+      ])
+      .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
+      .addSelect([
+        'userPermission.id',
+        'permission.id',
+        'permission.name',
+        'permission.name',
+        'permission.description',
+      ])
+      .where('user.id = :id', { id })
+      .andWhere('user.deleted_at IS NULL')
+      .andWhere('userRole.deleted_at IS NULL')
+      .andWhere('role.deleted_at IS NULL')
+      .getOne();
 
-      const user = await userRepository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.role', 'userRole')
-        .leftJoinAndSelect('userRole.role', 'role')
-        .leftJoinAndSelect('user.permission', 'userPermission')
-        .leftJoinAndSelect('userPermission.permission', 'permission')
-        .select(['user.id', 'user.name', 'user.last_name', 'user.email'])
-        .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
-        .addSelect([
-          'userPermission.id',
-          'permission.id',
-          'permission.name',
-          'permission.name',
-          'permission.description',
-        ])
-        .where('user.id = :id', { id })
-        .andWhere('user.deleted_at IS NULL')
-        .andWhere('userRole.deleted_at IS NULL')
-        .andWhere('role.deleted_at IS NULL')
-        .getOne();
+    if (!user) throw new NotFoundException(`User not found`);
 
-      if (!user) throw new NotFoundException(`User not found`);
+    const formatRole = user.role.map((r) => ({
+      id: r.role.id,
+      name: r.role.name,
+      description: r.role.description,
+    }));
 
-      return user;
-    });
+    const formatPermission = user.permission.map((p) => ({
+      id: p.permission.id,
+      name: p.permission.name,
+      description: p.permission.description,
+    }));
+
+    return {
+      id: user.id,
+      email: user.email,
+      person_id: user.person.id,
+      first_name: user.person.first_name,
+      middle_name: user.person.middle_name,
+      last_name: user.person.last_name,
+      person_type_id: user.person.personType.id,
+      person_type_name: user.person.personType.name,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+      role: formatRole,
+      permission: formatPermission,
+    };
   }
 
   async findUsers() {
-    /* return await this.dataSource.transaction(async (manage) => {
-      const userRepository = manage.getRepository(User);
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.person', 'person')
+      .leftJoinAndSelect('person.personType', 'personType')
+      .leftJoinAndSelect('user.role', 'userRole')
+      .leftJoinAndSelect('userRole.role', 'role')
+      .leftJoinAndSelect('user.permission', 'userPermission')
+      .leftJoinAndSelect('userPermission.permission', 'permission')
+      .select(['user.id', 'user.email'])
+      .addSelect([
+        'person.id',
+        'person.first_name',
+        'person.middle_name',
+        'person.last_name',
+        'personType.id',
+        'personType.name',
+      ])
+      .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
+      .addSelect([
+        'userPermission.id',
+        'permission.id',
+        'permission.name',
+        'permission.description',
+      ])
+      .where('user.deleted_at IS NULL')
+      .andWhere('userRole.deleted_at IS NULL')
+      .andWhere('role.deleted_at IS NULL')
+      .andWhere('userPermission.deleted_at IS NULL')
+      .andWhere('permission.deleted_at IS NULL')
+      .getMany();
 
-      const users = await userRepository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.role', 'userRole')
-        .leftJoinAndSelect('userRole.role', 'role')
-        .leftJoinAndSelect('user.permission', 'userPermission')
-        .leftJoinAndSelect('userPermission.permission', 'permission')
-        .select(['user.id', 'user.name', 'user.last_name', 'user.email'])
-        .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
-        .addSelect([
-          'userPermission.id',
-          'permission.id',
-          'permission.name',
-          'permission.description',
-        ])
-        .where('user.deleted_at IS NULL')
-        .andWhere('userRole.deleted_at IS NULL')
-        .andWhere('role.deleted_at IS NULL')
-        .getMany();
+    const formattedUsers = users.map((user) => ({
+      id: user.id,
+      email: user.email,
+      person_id: user.person.id,
+      first_name: user.person.first_name,
+      middle_name: user.person.middle_name,
+      last_name: user.person.last_name,
+      person_type_name: user.person.personType.name,
+      role: user.role.map((r) => ({
+        id: r.role.id,
+        name: r.role.name,
+        description: r.role.description,
+      })),
+      permission: user.permission.map((p) => ({
+        id: p.permission.id,
+        name: p.permission.name,
+        description: p.permission.description,
+      })),
+    }));
 
-      const formattedUsers = users.map((user) => ({
-        ...user,
-        role: user.role.map((r) => ({
-          id: r.role.id,
-          name: r.role.name,
-          description: r.role.description,
-        })),
-        permission: user.permission.map((p) => ({
-          id: p.permission.id,
-          name: p.permission.name,
-          description: p.permission.description,
-        })),
-      }));
-
-      return formattedUsers;
-    }); */
+    return formattedUsers;
   }
 
   async updateUser(_id: number, _updateUserDto: UpdateUserDto) {

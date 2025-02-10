@@ -27,7 +27,7 @@ export class PermissionService {
       const user = await this.userService.findUserById(id);
 
       const permissionsNames = user.permission.map(
-        (permission) => permission.permission.name,
+        (permission) => permission.name,
       );
 
       return permissionsNames;
