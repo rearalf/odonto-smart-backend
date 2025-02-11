@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 import { Permission } from 'src/permission/entities/permission.entity';
 import { UserPermission } from './entities/user-permission.entity';
@@ -13,7 +13,15 @@ export class UserPermissionService {
     private readonly userPermissionRepository: Repository<UserPermission>,
   ) {}
 
-  async create(user: User, permission: Permission) {
+  async create(
+    user: User,
+    permission: Permission,
+    entityManager?: EntityManager,
+  ) {
+    const useEntity =
+      entityManager.getRepository(UserPermission) ||
+      this.userPermissionRepository;
+
     const validationRelation = await this.findByIdUserAndPermission(
       user.id,
       permission.id,
@@ -22,12 +30,12 @@ export class UserPermissionService {
     if (validationRelation !== null)
       throw new BadRequestException('Este usuario ya tiene este rol asignado.');
 
-    const created = this.userPermissionRepository.create({
+    const created = useEntity.create({
       permission,
       user,
     });
 
-    const saved = await this.userPermissionRepository.save(created);
+    const saved = await useEntity.save(created);
 
     return saved;
   }

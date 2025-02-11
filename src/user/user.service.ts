@@ -38,7 +38,10 @@ export class UserService {
       return await this.dataSource.transaction(async (entityManager) => {
         const userRepository = entityManager.getRepository(User);
 
-        const { person } = await this.personService.create(createUserDto);
+        const { person } = await this.personService.create(
+          createUserDto,
+          entityManager,
+        );
 
         const validationEmail = await userRepository.findBy({
           email: createUserDto.email,
@@ -56,6 +59,8 @@ export class UserService {
           person,
         });
 
+        const saved = await userRepository.save(createUser);
+
         const roles: Role[] = [];
 
         for (const roleId of createUserDto.role) {
@@ -63,7 +68,8 @@ export class UserService {
 
           const createdUserRole = await this.userRoleService.create(
             role,
-            createUser,
+            saved,
+            entityManager,
           );
 
           roles.push(createdUserRole.role);
@@ -76,14 +82,13 @@ export class UserService {
             await this.permissionService.findById(permissionId);
 
           const savedRelation = await this.userPermissionService.create(
-            createUser,
+            saved,
             permission,
+            entityManager,
           );
 
           permissions.push(savedRelation.permission);
         }
-
-        const saved = await userRepository.save(createUser);
 
         return {
           id: saved.id,
@@ -137,7 +142,7 @@ export class UserService {
       .andWhere('role.deleted_at IS NULL')
       .getOne();
 
-    if (!user) throw new NotFoundException(`User not found`);
+    if (!user) throw new NotFoundException(`Usuario no encontrado.`);
 
     const formatRole = user.role.map((r) => ({
       id: r.role.id,
@@ -222,17 +227,11 @@ export class UserService {
     return formattedUsers;
   }
 
-  async updateUser(_id: number, _updateUserDto: UpdateUserDto) {
-    /*  return await this.dataSource.transaction(async (manage) => {
+  async updateUser(id: number, updateUserDto: UpdateUserDto) {
+    return await this.dataSource.transaction(async (manage) => {
       const userRepository = manage.getRepository(User);
-      const roleRepository = manage.getRepository(Role);
-      const pivotRoleRepository = manage.getRepository(UserRole);
-      const permissionRepository = manage.getRepository(Permission);
-      const pivotPermissionRepository = manage.getRepository(UserPermission);
 
-      const user = await this.findUserById(id);
-
-      if (!user) throw new NotFoundException(`User not found`);
+      const _user = await this.findUserById(id);
 
       if (updateUserDto.email) {
         const existingUser = await userRepository.findOne({
@@ -241,147 +240,26 @@ export class UserService {
 
         if (existingUser && existingUser.id !== id)
           throw new ConflictException(
-            `The email ${updateUserDto.email} already exists`,
+            `El correo ${updateUserDto.email} ya existe.`,
           );
       }
 
       const fieldsToUpdate: Partial<User> = {};
+
       if (updateUserDto.email) fieldsToUpdate.email = updateUserDto.email;
-      // if (updateUserDto.name) fieldsToUpdate.name = updateUserDto.name;
-      // if (updateUserDto.last_name)
-      //   fieldsToUpdate.last_name = updateUserDto.last_name;
+      if (updateUserDto.first_name)
+        fieldsToUpdate.person.first_name = updateUserDto.first_name;
+      if (updateUserDto.middle_name)
+        fieldsToUpdate.person.middle_name = updateUserDto.middle_name;
+      if (updateUserDto.last_name)
+        fieldsToUpdate.person.last_name = updateUserDto.last_name;
+      if (updateUserDto.last_name)
+        fieldsToUpdate.person.last_name = updateUserDto.last_name;
 
       const userCreate = userRepository.create(fieldsToUpdate);
-      const updateUser = await userRepository.update({ id }, userCreate);
 
-      const rolesModified = {
-        added: [] as Role[],
-        removed: [] as Role[],
-      };
-
-      const currentRoleIds = user.role.map((userRole) => userRole.role.id);
-
-      if (updateUserDto.role) {
-        if (updateUserDto.role.length > 0) {
-          const rolesToAdd = updateUserDto.role.filter(
-            (id) => !currentRoleIds.includes(id),
-          );
-
-          for (const roleId of rolesToAdd) {
-            const role = await roleRepository.findOne({
-              where: { id: roleId },
-            });
-
-            if (!role)
-              throw new NotFoundException(`Role with ID ${role} not found`);
-
-            const userRole = pivotRoleRepository.create({
-              user,
-              role,
-            });
-
-            const saved = await pivotRoleRepository.save(userRole);
-
-            rolesModified.added.push(saved.role);
-          }
-        }
-
-        let rolesToRemove: number[] = [];
-
-        if (updateUserDto.role.length === 0) {
-          rolesToRemove = currentRoleIds;
-        } else {
-          rolesToRemove = currentRoleIds.filter(
-            (id) => !updateUserDto.role.includes(id),
-          );
-        }
-
-        if (rolesToRemove.length > 0) {
-          const rolesToRemoveEntities = await roleRepository
-            .createQueryBuilder('role')
-            .select(['role.id', 'role.name', 'role.description'])
-            .where('role.id IN (:...roles)', { roles: rolesToRemove })
-            .getMany();
-
-          rolesModified.removed = rolesToRemoveEntities.map((role) => role);
-
-          await pivotRoleRepository
-            .createQueryBuilder('user_role')
-            .softDelete()
-            .where('user_id = :id', { id })
-            .andWhere('role_id IN (:...roles)', { roles: rolesToRemove })
-            .execute();
-        }
-      }
-
-      const permissionModified = {
-        added: [] as Permission[],
-        removed: [] as Permission[],
-      };
-
-      const currentPermissionIds = user.permission.map(
-        (userPermission) => userPermission.permission.id,
-      );
-
-      if (updateUserDto.permission) {
-        if (updateUserDto.permission.length > 0) {
-          const permissionsToAdd = updateUserDto.permission.filter(
-            (id) => !currentPermissionIds.includes(id),
-          );
-
-          for (const permissionId of permissionsToAdd) {
-            const permission = await permissionRepository.findOne({
-              where: { id: permissionId },
-            });
-
-            if (!permission) throw new NotFoundException(`Role not found`);
-
-            const create = pivotPermissionRepository.create({
-              user,
-              permission,
-            });
-
-            const saved = await pivotPermissionRepository.save(create);
-
-            permissionModified.added.push(saved.permission);
-          }
-        }
-
-        let permissionsToRemove: number[] = [];
-
-        if (updateUserDto.permission.length === 0) {
-          permissionsToRemove = user.permission.map(
-            (userPermission) => userPermission.permission.id,
-          );
-        } else {
-          permissionsToRemove = currentPermissionIds.filter(
-            (id) => !updateUserDto.permission.includes(id),
-          );
-        }
-
-        const permission = await permissionRepository.find({
-          where: { id: In(permissionsToRemove) },
-        });
-
-        permissionModified.removed = permission.map((permission) => permission);
-
-        if (permissionsToRemove.length > 0)
-          await pivotPermissionRepository
-            .createQueryBuilder('user_permission')
-            .softDelete()
-            .where('user_id = :id', { id })
-            .andWhere('permission_id IN (:...permission)', {
-              permission: permissionsToRemove,
-            })
-            .execute();
-      }
-
-      return {
-        updateUser,
-        rolesModified,
-        permissionModified,
-      };
-    }); */
+      return userCreate;
+    });
   }
 
   async deleteUser(_id: number) {

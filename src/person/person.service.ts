@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 
 import { PersonSpecialtyService } from '../person-specialty/person-specialty.service';
 import { PersonTypeService } from 'src/person-type/person-type.service';
@@ -26,7 +26,13 @@ export class PersonService {
     private readonly specialtyService: SpecialtyService,
   ) {}
 
-  async create(createPersonDto: CreatePersonDto) {
+  async create(
+    createPersonDto: CreatePersonDto,
+    entityManager?: EntityManager,
+  ) {
+    const useEntity =
+      entityManager.getRepository(Person) || this.personRepository;
+
     const personType = await this.personTypeService.findOneById(
       createPersonDto.personType,
     );
@@ -34,12 +40,14 @@ export class PersonService {
     if (!personType)
       throw new NotFoundException('Tipo de persona no encontrado.');
 
-    const createdPerson = this.personRepository.create({
+    const createdPerson = useEntity.create({
       first_name: createPersonDto.first_name,
       last_name: createPersonDto.last_name,
       middle_name: createPersonDto.middle_name,
       personType,
     });
+
+    const savedPerson = await useEntity.save(createdPerson);
 
     const specialties: Specialty[] = [];
 
@@ -62,8 +70,6 @@ export class PersonService {
         specialties.push(savedSpecialty.specialty);
       }
     }
-
-    const savedPerson = await this.personRepository.save(createdPerson);
 
     return {
       person: {
