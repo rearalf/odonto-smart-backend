@@ -14,6 +14,7 @@ import { PersonService } from 'src/person/person.service';
 import { RoleService } from '../role/role.service';
 
 import { Permission } from 'src/permission/entities/permission.entity';
+import { Person } from 'src/person/entities/person.entity';
 import { Role } from 'src/role/entities/role.entity';
 import { User } from './entities/user.entity';
 
@@ -228,37 +229,84 @@ export class UserService {
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
-    return await this.dataSource.transaction(async (manage) => {
-      const userRepository = manage.getRepository(User);
+    return await this.dataSource.transaction(async (entityManager) => {
+      const userRepository = entityManager.getRepository(User);
 
-      const _user = await this.findUserById(id);
+      const user = await userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'userRole')
+        .leftJoinAndSelect('userRole.role', 'role')
+        .leftJoinAndSelect('user.permission', 'userPermission')
+        .leftJoinAndSelect('userPermission.permission', 'permission')
+        .where('user.id = :id', { id })
+        .andWhere('user.deleted_at IS NULL')
+        .getOne();
 
-      if (updateUserDto.email) {
-        const existingUser = await userRepository.findOne({
-          where: { email: updateUserDto.email },
-        });
+      const fieldsToPersonUpdate: Partial<Person> = {};
 
-        if (existingUser && existingUser.id !== id)
-          throw new ConflictException(
-            `El correo ${updateUserDto.email} ya existe.`,
+      if (updateUserDto.first_name)
+        fieldsToPersonUpdate.first_name = updateUserDto.first_name;
+      if (updateUserDto.middle_name)
+        fieldsToPersonUpdate.middle_name = updateUserDto.middle_name;
+      if (updateUserDto.last_name)
+        fieldsToPersonUpdate.last_name = updateUserDto.last_name;
+
+      const rolesModified = {
+        added: [] as Role[],
+        removed: [] as Role[],
+      };
+
+      const currentRoleIds = user.role.map((userRole) => userRole.role.id);
+
+      if (updateUserDto.role) {
+        if (updateUserDto.role.length > 0) {
+          const rolesToAdd = updateUserDto.role.filter(
+            (id) => !currentRoleIds.includes(id),
           );
+
+          for (const roleId of rolesToAdd) {
+            const role = await this.roleService.findRoleById(roleId);
+
+            const createdUserRole = await this.userRoleService.create(
+              role,
+              user,
+              entityManager,
+            );
+
+            rolesModified.added.push(createdUserRole.role);
+          }
+        }
+
+        let rolesToRemove: number[] = [];
+
+        if (updateUserDto.role.length === 0) {
+          rolesToRemove = currentRoleIds;
+        } else {
+          rolesToRemove = currentRoleIds.filter(
+            (id) => !updateUserDto.role.includes(id),
+          );
+        }
+
+        if (rolesToRemove.length > 0) {
+          const rolesToRemoveEntities =
+            await this.roleService.findMultiUserRole(rolesToRemove);
+
+          if (rolesToRemoveEntities.length > 0) {
+            rolesModified.removed = rolesToRemoveEntities.map((role) => role);
+
+            await this.userRoleService.multiDelete(
+              user.id,
+              rolesToRemove,
+              entityManager,
+            );
+          }
+        }
       }
 
-      const fieldsToUpdate: Partial<User> = {};
+      if (updateUserDto.permission) {
+      }
 
-      if (updateUserDto.email) fieldsToUpdate.email = updateUserDto.email;
-      if (updateUserDto.first_name)
-        fieldsToUpdate.person.first_name = updateUserDto.first_name;
-      if (updateUserDto.middle_name)
-        fieldsToUpdate.person.middle_name = updateUserDto.middle_name;
-      if (updateUserDto.last_name)
-        fieldsToUpdate.person.last_name = updateUserDto.last_name;
-      if (updateUserDto.last_name)
-        fieldsToUpdate.person.last_name = updateUserDto.last_name;
-
-      const userCreate = userRepository.create(fieldsToUpdate);
-
-      return userCreate;
+      return fieldsToPersonUpdate;
     });
   }
 

@@ -119,6 +119,16 @@ export class RoleService {
     });
   }
 
+  async findMultiUserRole(ids: number[]) {
+    const roles = await this.roleRepository
+      .createQueryBuilder('role')
+      .select(['role.id', 'role.name', 'role.description'])
+      .where('role.id IN (:...roles)', { roles: ids })
+      .getMany();
+
+    return roles;
+  }
+
   async updateRole(id: number, updateRoleDto: UpdateRoleDto) {
     return await this.dataSource.transaction(async (manage) => {
       const roleRepository = manage.getRepository(Role);

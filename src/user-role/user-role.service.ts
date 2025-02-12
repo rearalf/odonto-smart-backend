@@ -26,4 +26,22 @@ export class UserRoleService {
 
     return saved;
   }
+
+  async multiDelete(
+    userId: number,
+    ids: number[],
+    entityManager?: EntityManager,
+  ) {
+    const useEntity =
+      entityManager.getRepository(UserRole) || this.userRoleRepository;
+
+    const deteledUserRoles = await useEntity
+      .createQueryBuilder('user_role')
+      .softDelete()
+      .where('user_id = :id', { id: userId })
+      .andWhere('role_id IN (:...roles)', { roles: ids })
+      .execute();
+
+    return deteledUserRoles;
+  }
 }
