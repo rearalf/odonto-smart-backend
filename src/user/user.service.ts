@@ -14,10 +14,10 @@ import { PersonService } from 'src/person/person.service';
 import { RoleService } from '../role/role.service';
 
 import { Permission } from 'src/permission/entities/permission.entity';
-import { Person } from 'src/person/entities/person.entity';
 import { Role } from 'src/role/entities/role.entity';
 import { User } from './entities/user.entity';
 
+import { UpdatePersonDto } from 'src/person/dto/update-person.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -120,14 +120,21 @@ export class UserService {
       .leftJoinAndSelect('userPermission.permission', 'permission')
       .leftJoinAndSelect('user.person', 'person')
       .leftJoinAndSelect('person.personType', 'personType')
+      .leftJoinAndSelect('person.specialty', 'personSpecialty')
+      .leftJoinAndSelect('personSpecialty.specialty', 'specialty')
       .select(['user.id', 'user.email', 'user.created_at', 'user.updated_at'])
       .addSelect([
         'person.id',
         'person.first_name',
         'person.middle_name',
         'person.last_name',
-        'personType.id',
-        'personType.name',
+      ])
+      .addSelect(['personType.id', 'personType.name'])
+      .addSelect([
+        'personSpecialty.id',
+        'specialty.id',
+        'specialty.name',
+        'specialty.description',
       ])
       .addSelect(['userRole.id', 'role.id', 'role.name', 'role.description'])
       .addSelect([
@@ -157,6 +164,12 @@ export class UserService {
       description: p.permission.description,
     }));
 
+    const formatSpecialty = user.person.specialty.map((s) => ({
+      id: s.specialty.id,
+      name: s.specialty.name,
+      description: s.specialty.description,
+    }));
+
     return {
       id: user.id,
       email: user.email,
@@ -170,6 +183,7 @@ export class UserService {
       updated_at: user.updated_at,
       role: formatRole,
       permission: formatPermission,
+      specialty: formatSpecialty,
     };
   }
 
@@ -238,11 +252,14 @@ export class UserService {
         .leftJoinAndSelect('userRole.role', 'role')
         .leftJoinAndSelect('user.permission', 'userPermission')
         .leftJoinAndSelect('userPermission.permission', 'permission')
+        .leftJoinAndSelect('user.person', 'person')
         .where('user.id = :id', { id })
         .andWhere('user.deleted_at IS NULL')
         .getOne();
 
-      const fieldsToPersonUpdate: Partial<Person> = {};
+      if (!user) throw new NotFoundException(`Usuario no encontrada.`);
+
+      const fieldsToPersonUpdate: UpdatePersonDto = {};
 
       if (updateUserDto.first_name)
         fieldsToPersonUpdate.first_name = updateUserDto.first_name;
@@ -250,17 +267,34 @@ export class UserService {
         fieldsToPersonUpdate.middle_name = updateUserDto.middle_name;
       if (updateUserDto.last_name)
         fieldsToPersonUpdate.last_name = updateUserDto.last_name;
+      if (updateUserDto.person_type)
+        fieldsToPersonUpdate.person_type = updateUserDto.person_type;
+      if (updateUserDto.specialty)
+        fieldsToPersonUpdate.specialty = updateUserDto.specialty;
+
+      const _updatedPerson = await this.personService.update(
+        user.person.id,
+        fieldsToPersonUpdate,
+      );
 
       const rolesModified = {
         added: [] as Role[],
         removed: [] as Role[],
       };
 
+      const permissionModified = {
+        added: [] as Permission[],
+        removed: [] as Permission[],
+      };
+
       const currentRoleIds = user.role.map((userRole) => userRole.role.id);
+      const currentPermissionIds = user.permission.map(
+        (userPermission) => userPermission.permission.id,
+      );
 
       if (updateUserDto.role) {
         if (updateUserDto.role.length > 0) {
-          const rolesToAdd = updateUserDto.role.filter(
+          const rolesToAdd = [...new Set(updateUserDto.role)].filter(
             (id) => !currentRoleIds.includes(id),
           );
 
@@ -282,7 +316,7 @@ export class UserService {
         if (updateUserDto.role.length === 0) {
           rolesToRemove = currentRoleIds;
         } else {
-          rolesToRemove = currentRoleIds.filter(
+          rolesToRemove = [...new Set(currentRoleIds)].filter(
             (id) => !updateUserDto.role.includes(id),
           );
         }
@@ -304,9 +338,61 @@ export class UserService {
       }
 
       if (updateUserDto.permission) {
+        if (updateUserDto.permission.length > 0) {
+          const permissionsToAdd = [
+            ...new Set(updateUserDto.permission),
+          ].filter((id) => !currentPermissionIds.includes(id));
+
+          for (const permissionId of permissionsToAdd) {
+            const permission =
+              await this.permissionService.findById(permissionId);
+
+            const createdUserPermission =
+              await this.userPermissionService.create(
+                user,
+                permission,
+                entityManager,
+              );
+
+            permissionModified.added.push(createdUserPermission.permission);
+          }
+        }
+
+        let permissionsToRemove: number[] = [];
+
+        if (updateUserDto.permission.length === 0) {
+          permissionsToRemove = currentPermissionIds;
+        } else {
+          permissionsToRemove = [...new Set(currentPermissionIds)].filter(
+            (id) => !updateUserDto.permission.includes(id),
+          );
+        }
+
+        if (permissionsToRemove.length > 0) {
+          const permissionsToRemoveEntities =
+            await this.permissionService.findMultiUserPermission(
+              permissionsToRemove,
+            );
+
+          if (permissionsToRemoveEntities.length > 0) {
+            permissionModified.removed = permissionsToRemoveEntities.map(
+              (permission) => permission,
+            );
+
+            await this.userPermissionService.multiDelete(
+              user.id,
+              permissionsToRemove,
+              entityManager,
+            );
+          }
+        }
       }
 
-      return fieldsToPersonUpdate;
+      const updatedUser = await this.findUserById(id);
+
+      return {
+        ...updatedUser,
+      };
     });
   }
 

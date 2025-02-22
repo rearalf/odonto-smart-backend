@@ -1,15 +1,16 @@
+import { Repository, EntityManager } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, EntityManager } from 'typeorm';
 
 import { PersonSpecialtyService } from '../person-specialty/person-specialty.service';
 import { PersonTypeService } from 'src/person-type/person-type.service';
 import { SpecialtyService } from '../specialty/specialty.service';
 
+import { PersonType } from 'src/person-type/entities/person-type.entity';
 import { Specialty } from 'src/specialty/entities/specialty.entity';
 import { Person } from './entities/person.entity';
 
@@ -30,11 +31,12 @@ export class PersonService {
     createPersonDto: CreatePersonDto,
     entityManager?: EntityManager,
   ) {
-    const useEntity =
-      entityManager.getRepository(Person) || this.personRepository;
+    let useEntity: Repository<Person>;
+    if (entityManager) useEntity = entityManager.getRepository(Person);
+    else useEntity = this.personRepository;
 
     const personType = await this.personTypeService.findOneById(
-      createPersonDto.personType,
+      createPersonDto.person_type,
     );
 
     if (!personType)
@@ -65,6 +67,7 @@ export class PersonService {
         const savedSpecialty = await this.personSpecialtyService.create(
           specialty,
           createdPerson,
+          entityManager,
         );
 
         specialties.push(savedSpecialty.specialty);
@@ -83,12 +86,158 @@ export class PersonService {
     return `This action returns all person`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} person`;
+  async findOne(id: number) {
+    const person = await this.personRepository
+      .createQueryBuilder('person')
+      .leftJoinAndSelect('person.personType', 'person_type')
+      .leftJoinAndSelect('person.specialty', 'personSpecialty')
+      .leftJoinAndSelect('personSpecialty.specialty', 'specialty')
+      .select([
+        'person.id',
+        'person.first_name',
+        'person.middle_name',
+        'person.last_name',
+      ])
+      .addSelect([
+        'person_type.id',
+        'person_type.name',
+        'person_type.description',
+      ])
+      .addSelect([
+        'personSpecialty.id',
+        'specialty.id',
+        'specialty.name',
+        'specialty.description',
+      ])
+      .where('person.id = :id', { id })
+      .getOne();
+
+    if (!person) throw new NotFoundException(`Persona no encontrada.`);
+
+    const formatSpecialty = person.specialty.map((s) => ({
+      id: s.specialty.id,
+      name: s.specialty.name,
+      description: s.specialty.description,
+    }));
+
+    return { ...person, ...formatSpecialty };
   }
 
-  update(id: number, _updatePersonDto: UpdatePersonDto) {
-    return `This action updates a #${id} person`;
+  async update(
+    id: number,
+    updatePersonDto: UpdatePersonDto,
+    entityManager?: EntityManager,
+  ) {
+    let useEntity: Repository<Person>;
+    if (entityManager) useEntity = entityManager.getRepository(Person);
+    else useEntity = this.personRepository;
+
+    const person = await this.findOne(id);
+
+    const fieldsToPersonUpdate: UpdatePersonDto & { personType?: PersonType } =
+      {};
+
+    if (
+      updatePersonDto.first_name &&
+      updatePersonDto.first_name !== person.first_name
+    ) {
+      fieldsToPersonUpdate.first_name = updatePersonDto.first_name;
+    }
+    if (
+      updatePersonDto.middle_name &&
+      updatePersonDto.middle_name !== person.middle_name
+    ) {
+      fieldsToPersonUpdate.middle_name = updatePersonDto.middle_name;
+    }
+    if (
+      updatePersonDto.last_name &&
+      updatePersonDto.last_name !== person.last_name
+    ) {
+      fieldsToPersonUpdate.last_name = updatePersonDto.last_name;
+    }
+
+    let personType: PersonType;
+    if (updatePersonDto.person_type) {
+      personType = await this.personTypeService.findOneById(
+        updatePersonDto.person_type,
+      );
+
+      fieldsToPersonUpdate.personType = personType;
+    }
+
+    if (Object.keys(fieldsToPersonUpdate).length > 0) {
+      await useEntity
+        .createQueryBuilder('person')
+        .update(Person)
+        .set({
+          first_name: fieldsToPersonUpdate.first_name,
+          middle_name: fieldsToPersonUpdate.middle_name,
+          last_name: fieldsToPersonUpdate.last_name,
+          personType: fieldsToPersonUpdate.personType,
+        })
+        .where('id = :id', { id: person.id })
+        .returning(['id', 'first_name', 'middle_name', 'last_name'])
+        .execute();
+    }
+
+    const specialtiesModified = {
+      added: [] as Specialty[],
+      removed: [] as Specialty[],
+    };
+
+    if (updatePersonDto.person_type === 4 && personType.name === 'Doctor') {
+      if (person.specialty.length === 0 && !updatePersonDto.specialty)
+        throw new BadRequestException('El doctor debe tener especialidad.');
+
+      const currentSpecialtiesIds = person.specialty.map(
+        (personSpecialty) => personSpecialty.specialty.id,
+      );
+
+      const specialtiesToAdd = [...new Set(updatePersonDto.specialty)].filter(
+        (id) => !currentSpecialtiesIds.includes(id),
+      );
+
+      const specialtiesToRemove = [...new Set(currentSpecialtiesIds)].filter(
+        (id) => !updatePersonDto.specialty.includes(id),
+      );
+
+      for (const specialtiesId of specialtiesToAdd) {
+        const specialty =
+          await this.specialtyService.findOneById(specialtiesId);
+
+        const createdPersonSpecialty = await this.personSpecialtyService.create(
+          specialty,
+          person,
+          entityManager,
+        );
+
+        specialtiesModified.added.push(createdPersonSpecialty.specialty);
+      }
+
+      if (specialtiesToRemove.length > 0) {
+        const personSpecialtyToRemovedEntities =
+          await this.personSpecialtyService.findMultiPersonSpecialty(
+            person.id,
+            specialtiesToRemove,
+          );
+
+        if (personSpecialtyToRemovedEntities.length > 0) {
+          specialtiesModified.removed = personSpecialtyToRemovedEntities.map(
+            (specialty) => specialty.specialty,
+          );
+
+          await this.personSpecialtyService.multiDelete(
+            person.id,
+            specialtiesToRemove,
+            entityManager,
+          );
+        }
+      }
+    }
+
+    const updatedPerson = await this.findOne(id);
+
+    return updatedPerson;
   }
 
   remove(id: number) {

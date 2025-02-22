@@ -30,14 +30,14 @@ export class CreateUserDto extends CreatePersonDto {
   password: string;
 
   @ApiProperty({
-    example: '1, 2, 3',
+    example: [1, 2, 3],
     description: 'It is the roles ids',
   })
   @IsArray()
   role: number[];
 
   @ApiProperty({
-    example: '1, 2, 3',
+    example: [1, 2, 3],
     description: 'It is the permissions ids',
   })
   @IsArray()

@@ -51,4 +51,23 @@ export class UserPermissionService {
 
     return userPermission;
   }
+
+  async multiDelete(
+    userId: number,
+    ids: number[],
+    entityManager?: EntityManager,
+  ) {
+    const useEntity =
+      entityManager.getRepository(UserPermission) ||
+      this.userPermissionRepository;
+
+    const deteledUserPermission = await useEntity
+      .createQueryBuilder('user_permission')
+      .softDelete()
+      .where('user_id = :id', { id: userId })
+      .andWhere('permission_id IN (:...permission)', { permission: ids })
+      .execute();
+
+    return deteledUserPermission;
+  }
 }

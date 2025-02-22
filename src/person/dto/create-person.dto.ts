@@ -63,11 +63,11 @@ export class CreatePersonDto {
   @IsNotEmpty({ message: 'El tipo de persona es obligatorio.' })
   @IsNumber({}, { message: 'El tipo de persona debe ser un número.' })
   @IsPositive({ message: 'El tipo de persona debe ser un valor positivo.' })
-  personType: number;
+  person_type: number;
 
   @ApiProperty({
     nullable: true,
-    example: '1, 2, 3',
+    example: [1, 2, 3],
     description: 'The specialties ids for the person',
     required: false,
   })

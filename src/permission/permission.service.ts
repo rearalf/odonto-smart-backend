@@ -56,4 +56,14 @@ export class PermissionService {
 
     return permission;
   }
+
+  async findMultiUserPermission(ids: number[]) {
+    const permissions = await this.permissionRepository
+      .createQueryBuilder('permission')
+      .select(['permission.id', 'permission.name', 'permission.description'])
+      .where('permission.id IN (:...permissions)', { permissions: ids })
+      .getMany();
+
+    return permissions;
+  }
 }
