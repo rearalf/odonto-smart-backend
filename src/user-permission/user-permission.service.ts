@@ -66,6 +66,8 @@ export class UserPermissionService {
       .softDelete()
       .where('user_id = :id', { id: userId })
       .andWhere('permission_id IN (:...permission)', { permission: ids })
+      .andWhere('deleted_at IS NULL')
+      .returning(['id', 'user', 'permission'])
       .execute();
 
     return deteledUserPermission;

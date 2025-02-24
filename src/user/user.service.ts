@@ -396,39 +396,46 @@ export class UserService {
     });
   }
 
-  async deleteUser(_id: number) {
-    /* return await this.dataSource.transaction(async (manage) => {
-      const pivotPermissionRepository = manage.getRepository(UserPermission);
-      const pivotRoleRepository = manage.getRepository(UserRole);
-      const userRespository = manage.getRepository(User);
+  async deleteUser(id: number) {
+    return await this.dataSource.transaction(async (entityManager) => {
+      const userRespository = entityManager.getRepository(User);
 
       const user = await this.findUserById(id);
-      if (!user) throw new NotFoundException(`User not found`);
 
-      await userRespository.softDelete(id);
+      const deletedPerson = await this.personService.remove(
+        user.person_id,
+        entityManager,
+      );
 
-      const permissions = user.permission.map((permission) => permission);
+      const deletedUser = await userRespository
+        .createQueryBuilder('user')
+        .softDelete()
+        .where('id = :id', { id: user.id })
+        .andWhere('deleted_at IS NULL')
+        .returning(['id', 'email', 'person_id'])
+        .execute();
 
-      const permissionsDeleted: Permission[] = [];
+      const permissionsId = user.permission.map((permission) => permission.id);
+      const deletedPivotPermissions =
+        await this.userPermissionService.multiDelete(
+          id,
+          permissionsId,
+          entityManager,
+        );
 
-      for (const permission of permissions) {
-        await pivotPermissionRepository.softDelete(permission.id);
-        permissionsDeleted.push(permission.permission);
-      }
-
-      const roles = user.role.map((role) => role);
-      const rolesDeleted: Role[] = [];
-
-      for (const role of roles) {
-        await pivotRoleRepository.softDelete(role.id);
-        rolesDeleted.push(role.role);
-      }
+      const rolesId = user.role.map((role) => role.id);
+      const deletedPivotRoles = await this.userRoleService.multiDelete(
+        id,
+        rolesId,
+        entityManager,
+      );
 
       return {
-        user,
-        role: rolesDeleted,
-        permission: permissionsDeleted,
+        ...deletedUser.raw,
+        ...deletedPerson,
+        permission: deletedPivotPermissions.raw,
+        role: deletedPivotRoles.raw,
       };
-    }); */
+    });
   }
 }

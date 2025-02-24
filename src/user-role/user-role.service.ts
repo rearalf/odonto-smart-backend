@@ -40,6 +40,8 @@ export class UserRoleService {
       .softDelete()
       .where('user_id = :id', { id: userId })
       .andWhere('role_id IN (:...roles)', { roles: ids })
+      .andWhere('deleted_at IS NULL')
+      .returning(['id', 'role', 'user'])
       .execute();
 
     return deteledUserRoles;

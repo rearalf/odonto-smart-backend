@@ -67,9 +67,13 @@ export class PersonSpecialtyService {
       .softDelete()
       .where('person_id = :id', { id: userId })
       .andWhere('specialty_id IN (:...specialties)', { specialties: ids })
+      .andWhere('deleted_at IS NULL')
+      .returning(['id', 'person', 'specialty'])
       .execute();
 
-    return deteledPersonSpecialty;
+    return {
+      specialties: deteledPersonSpecialty.raw,
+    };
   }
 
   async findMultiPersonSpecialty(person_id: number, specialty_ids: number[]) {

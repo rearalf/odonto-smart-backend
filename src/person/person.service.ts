@@ -240,7 +240,37 @@ export class PersonService {
     return updatedPerson;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} person`;
+  async remove(id: number, entityManager?: EntityManager) {
+    let useEntity: Repository<Person>;
+    if (entityManager) useEntity = entityManager.getRepository(Person);
+    else useEntity = this.personRepository;
+
+    const person = await this.findOne(id);
+
+    const deletedPerson = await useEntity
+      .createQueryBuilder('person')
+      .softDelete()
+      .where('id = :id', { id: person.id })
+      .andWhere('deleted_at IS NULL')
+      .returning(['id', 'first_name', 'middle_name', 'last_name', 'personType'])
+      .execute();
+
+    let deletedPersonSPecialty = {};
+
+    if (person.specialty.length > 0) {
+      const specialtiesId = person.specialty.map(
+        (relation) => relation.specialty.id,
+      );
+      deletedPersonSPecialty = await this.personSpecialtyService.multiDelete(
+        person.id,
+        specialtiesId,
+        entityManager,
+      );
+    }
+
+    return {
+      ...deletedPerson.raw[0],
+      ...deletedPersonSPecialty,
+    };
   }
 }
