@@ -2,9 +2,13 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  type OpenAPIObject,
+  SwaggerModule,
+} from '@nestjs/swagger';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser(/* process.env.COOKIE_SECRET_KEY */)); // TODO: Implementar secret key
@@ -25,7 +29,8 @@ async function bootstrap() {
       .setDescription('This is the documentation about a odonto smart.')
       .setVersion('0.0.1')
       .build();
-    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    const documentFactory = (): OpenAPIObject =>
+      SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, documentFactory);
   }
 
@@ -37,4 +42,4 @@ async function bootstrap() {
     );
   });
 }
-bootstrap();
+void bootstrap();
