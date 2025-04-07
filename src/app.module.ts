@@ -5,6 +5,7 @@ import { JoiValidationSchema } from './config/joi.validation';
 import { EnvConfig } from './config/env.config';
 import typeorm from './config/typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,6 +25,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         autoLoadEntities: true,
       }),
     }),
+
+    UserModule,
   ],
   controllers: [],
   providers: [],
