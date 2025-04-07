@@ -7,17 +7,27 @@ import {
   type OpenAPIObject,
   SwaggerModule,
 } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  const configService = app.get(ConfigService);
+
+  const allowedOrigins: string = configService.get('ALLOWED_ORIGINS') ?? '*';
+
   app.use(cookieParser(/* process.env.COOKIE_SECRET_KEY */)); // TODO: Implementar secret key
-  app.enableCors();
-  app.setGlobalPrefix(`api/${process.env.API_VERSION ?? 'v1'}`);
+  app.enableCors({
+    origin: allowedOrigins === '*' ? true : allowedOrigins.split(','),
+    credentials: true,
+    exposedHeaders: [],
+  });
+  app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
