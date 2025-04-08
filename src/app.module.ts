@@ -6,6 +6,7 @@ import { EnvConfig } from './config/env.config';
 import typeorm from './config/typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
+import { PersonModule } from './person/person.module';
 
 @Module({
   imports: [
@@ -27,6 +28,8 @@ import { UserModule } from './user/user.module';
     }),
 
     UserModule,
+
+    PersonModule,
   ],
   controllers: [],
   providers: [],

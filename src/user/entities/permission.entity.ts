@@ -1,10 +1,12 @@
+import { Column, Entity, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { BaseEntity } from 'src/db/entities/base-entity';
-import { Column, OneToMany } from 'typeorm';
+
 import { RolePermission } from './role-permission.entity';
 import { UserPermission } from './user-permission.entity';
+import { BaseEntity } from 'src/db/entities/base-entity';
 
+@Entity()
 export class Permission extends BaseEntity {
   @Column({ type: 'varchar', length: 255, unique: true })
   @IsString()
@@ -34,7 +36,7 @@ export class Permission extends BaseEntity {
     description: 'List of roles that have been assigned this permission.',
     example: [{ roleId: 1, permissionId: 2 }],
   })
-  rolePermission: RolePermission[];
+  role_permission: RolePermission[];
 
   @OneToMany(
     () => UserPermission,
@@ -46,5 +48,5 @@ export class Permission extends BaseEntity {
     description: 'List of users that have been assigned this permission.',
     example: [{ userId: 1, permissionId: 2 }],
   })
-  userPermission: UserPermission[];
+  user_permission: UserPermission[];
 }

@@ -1,11 +1,13 @@
-import { BaseEntity } from 'src/db/entities/base-entity';
-import { JoinColumn, ManyToOne } from 'typeorm';
-import { User } from './user.entity';
+import { Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+
+import { BaseEntity } from 'src/db/entities/base-entity';
+import { User } from './user.entity';
 import { Role } from './role.entity';
 
+@Entity()
 export class UserRole extends BaseEntity {
-  @ManyToOne(() => User, (user) => user.userRole)
+  @ManyToOne(() => User, (user) => user.user_role)
   @JoinColumn({ name: 'user_id' })
   @ApiProperty({
     description:
@@ -14,7 +16,7 @@ export class UserRole extends BaseEntity {
   })
   user: User;
 
-  @ManyToOne(() => Role, (role) => role.userRole)
+  @ManyToOne(() => Role, (role) => role.user_role)
   @JoinColumn({ name: 'role_id' })
   @ApiProperty({
     description:

@@ -1,11 +1,13 @@
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 import { IsEmail, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Index, OneToMany } from 'typeorm';
 
 import { BaseEntity } from 'src/db/entities/base-entity';
 import { UserRole } from './user-role.entity';
 import { UserPermission } from './user-permission.entity';
+import { Person } from 'src/person/entities/person.entity';
 
+@Entity()
 @Index(['email'], { unique: true })
 export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 255, unique: true })
@@ -36,7 +38,7 @@ export class User extends BaseEntity {
       'List of roles assigned to the user. A user can have multiple roles.',
     example: [{ role: 'Admin' }, { role: 'User' }],
   })
-  userRole: UserRole[];
+  user_role: UserRole[];
 
   @OneToMany(() => UserPermission, (userPermission) => userPermission.user, {
     eager: false,
@@ -47,5 +49,13 @@ export class User extends BaseEntity {
     description: 'List of permissions assigned to the user.',
     example: [{ permissionId: 1, userId: 2 }],
   })
-  userPermission: UserPermission[];
+  user_permission: UserPermission[];
+
+  @OneToOne(() => Person, (person) => person.user)
+  @ApiProperty({
+    type: Person,
+    description: 'The person associated with this user.',
+    example: { first_name: 'Carlos', last_name: 'Cruz' },
+  })
+  person: Person;
 }
