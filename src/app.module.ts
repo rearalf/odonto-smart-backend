@@ -1,12 +1,14 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 
 import { JoiValidationSchema } from './config/joi.validation';
 import { EnvConfig } from './config/env.config';
 import typeorm from './config/typeorm';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
+
 import { PersonModule } from './person/person.module';
+import { DoctorModule } from './doctor/doctor.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -28,8 +30,8 @@ import { PersonModule } from './person/person.module';
     }),
 
     UserModule,
-
     PersonModule,
+    DoctorModule,
   ],
   controllers: [],
   providers: [],
