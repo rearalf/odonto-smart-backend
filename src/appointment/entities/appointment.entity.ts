@@ -1,12 +1,20 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
 import { STATUS_ENUM } from 'src/common/enums/appointment.enum';
 
 import { MedicalRecord } from 'src/patient/entities/medical_record.entity';
+import { Odontogram } from 'src/odontogram/entities/odontogram.entity';
 import { Patient } from 'src/patient/entities/patient.entity';
 import { Doctor } from 'src/doctor/entities/doctor.entity';
 import { BaseEntity } from 'src/db/entities/base-entity';
-import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Appointment extends BaseEntity {
@@ -87,4 +95,7 @@ export class Appointment extends BaseEntity {
 
   @OneToMany(() => MedicalRecord, (record) => record.appointment)
   medicalRecords: MedicalRecord[];
+
+  @OneToOne(() => Odontogram, (odontogram) => odontogram.appointment)
+  odontogram: Odontogram;
 }
