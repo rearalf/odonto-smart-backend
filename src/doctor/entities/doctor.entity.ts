@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 
+import { Appointment } from 'src/appointment/entities/appointment.entity';
 import { DoctorSpecialty } from './doctor-specialty.entity';
 import { Person } from 'src/person/entities/person.entity';
 import { BaseEntity } from 'src/db/entities/base-entity';
@@ -15,6 +16,9 @@ import { Specialty } from './specialty.entity';
 
 @Entity()
 export class Doctor extends BaseEntity {
+  @OneToMany(() => Appointment, (appointment) => appointment.doctor)
+  appointments: Appointment[];
+
   @OneToOne(() => Person)
   @JoinColumn({ name: 'person_id' })
   @ApiProperty({

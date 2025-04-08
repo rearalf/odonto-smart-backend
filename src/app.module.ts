@@ -6,6 +6,8 @@ import { JoiValidationSchema } from './config/joi.validation';
 import { EnvConfig } from './config/env.config';
 import typeorm from './config/typeorm';
 
+import { AppointmentModule } from './appointment/appointment.module';
+import { PatientModule } from './patient/patient.module';
 import { PersonModule } from './person/person.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { UserModule } from './user/user.module';
@@ -32,6 +34,8 @@ import { UserModule } from './user/user.module';
     UserModule,
     PersonModule,
     DoctorModule,
+    PatientModule,
+    AppointmentModule,
   ],
   controllers: [],
   providers: [],
