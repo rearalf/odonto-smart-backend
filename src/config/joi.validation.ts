@@ -29,4 +29,7 @@ export const JoiValidationSchema = Joi.object({
   DB_TYPE: Joi.string()
     .valid('postgres', 'mysql', 'mariadb', 'sqlite', 'mssql')
     .required(),
+
+  USER_EMAIL: Joi.string().required().email(),
+  USER_PASSWORD: Joi.string().required().min(8),
 });

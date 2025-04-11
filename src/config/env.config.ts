@@ -2,12 +2,16 @@ interface IEnvConfig {
   enviroment: string;
   port: number;
   host: string;
+
   db_host: string;
   db_port: number;
   db_user: string;
   db_password: string;
   db_name: string;
   db_type: string;
+
+  user_email: string;
+  user_password: string;
 }
 
 export const EnvConfig = (): IEnvConfig => ({
@@ -21,4 +25,7 @@ export const EnvConfig = (): IEnvConfig => ({
   db_password: process.env.DB_PASSWORD || 'root',
   db_name: process.env.DB_NAME || 'database',
   db_type: process.env.DB_TYPE || 'postgres',
+
+  user_email: process.env.USER_EMAIL || 'admin@gmail.com',
+  user_password: process.env.USER_PASSWORD || 'password',
 });

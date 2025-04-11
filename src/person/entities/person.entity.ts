@@ -1,7 +1,6 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsInt,
   IsUrl,
   Length,
   IsString,
@@ -60,12 +59,13 @@ export class Person extends BaseEntity {
     { message: 'Profile picture name must be a valid URL, if provided.' },
   )
   @ApiProperty({
-    example: 'https://example.com/profile.jpg',
+    example: 'profile.jpg',
     description:
       'The file name of the person’s profile picture (optional). If provided, it must be a valid URL.',
   })
   profile_picture_name?: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
   @IsOptional()
   @ApiProperty({
     example: 'https://example.com/profile.jpg',
@@ -75,35 +75,25 @@ export class Person extends BaseEntity {
   profile_picture?: string;
 
   @OneToOne(() => User, (user) => user.person)
-  @JoinColumn()
+  @JoinColumn({ name: 'user_id' })
   @ApiProperty({
     description: 'The user associated with this person.',
     example: { email: 'user@example.com', id: 1 },
   })
   user: User;
 
-  @Column({ type: 'int' })
-  @IsInt()
-  @ApiProperty({
-    description: 'The user_id associated with this person.',
-    example: 1,
-  })
+  @Column()
   user_id: number;
 
   @OneToOne(() => PersonType, (personType) => personType.people)
-  @JoinColumn()
+  @JoinColumn({ name: 'person_type_id' })
   @ApiProperty({
     description: 'The person type associated with this person.',
     example: { name: 'Doctor', id: 1 },
   })
   person_type: PersonType;
 
-  @Column({ type: 'int' })
-  @IsInt()
-  @ApiProperty({
-    description: 'The person_type_id associated with this person.',
-    example: 1,
-  })
+  @Column()
   person_type_id: number;
 
   @OneToMany(() => PersonContact, (contact) => contact.person, {

@@ -1,5 +1,5 @@
 import { PERMISSIONS_ENUM, TABLES_ENUM } from '@/common/enums/permission.enum';
-import { IBasicSeeds, IRolePermissionSeed } from './seeders.interface';
+import { IBasicSeeds, IPerson, IRolePermissionSeed } from './seeders.interface';
 
 export const personTypeSeeds: IBasicSeeds[] = [
   {
@@ -209,5 +209,15 @@ export const rolePermissionSeeds: IRolePermissionSeed[] = [
     id: 1,
     role_id: 1,
     permission_id: 10,
+  },
+];
+
+export const personSeeds: IPerson[] = [
+  {
+    id: 1,
+    first_name: 'Admin',
+    last_name: 'Admin',
+    person_type_id: 1,
+    user_id: 1,
   },
 ];
