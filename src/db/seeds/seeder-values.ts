@@ -1,4 +1,5 @@
-import { IBasicSeeds } from './seeders.interface';
+import { PERMISSIONS_ENUM, TABLES_ENUM } from '@/common/enums/permission.enum';
+import { IBasicSeeds, IRolePermissionSeed } from './seeders.interface';
 
 export const personTypeSeeds: IBasicSeeds[] = [
   {
@@ -94,5 +95,119 @@ export const specialtiesSeeds: IBasicSeeds[] = [
     name: 'Geriatría Odontológica',
     description:
       'Se ocupa de los problemas dentales y orales relacionados con el envejecimiento y el cuidado dental de personas mayores.',
+  },
+];
+
+export const permissionSeeds: IBasicSeeds[] = [
+  {
+    id: 1,
+    name: PERMISSIONS_ENUM.CREATE + TABLES_ENUM.DOCTOR,
+    description: 'Puede crear doctores',
+  },
+  {
+    id: 2,
+    name: PERMISSIONS_ENUM.VIEW + TABLES_ENUM.DOCTOR,
+    description: 'Puede consultar perfiles de doctores',
+  },
+  {
+    id: 3,
+    name: PERMISSIONS_ENUM.VIEW + TABLES_ENUM.DOCTOR + 's',
+    description: 'Puede consultar todos los doctores',
+  },
+  {
+    id: 4,
+    name: PERMISSIONS_ENUM.UPDATE + TABLES_ENUM.DOCTOR,
+    description: 'Puede actulizar doctores',
+  },
+  {
+    id: 5,
+    name: PERMISSIONS_ENUM.DELETE + TABLES_ENUM.DOCTOR,
+    description: 'Puede eliminar doctores',
+  },
+  {
+    id: 6,
+    name: PERMISSIONS_ENUM.CREATE + TABLES_ENUM.ROLE,
+    description: 'Puede crear roles',
+  },
+  {
+    id: 7,
+    name: PERMISSIONS_ENUM.VIEW + TABLES_ENUM.ROLE,
+    description: 'Puede consultar perfiles de rol',
+  },
+  {
+    id: 8,
+    name: PERMISSIONS_ENUM.VIEW + TABLES_ENUM.ROLE + 's',
+    description: 'Puede consultar todos los roles',
+  },
+  {
+    id: 9,
+    name: PERMISSIONS_ENUM.UPDATE + TABLES_ENUM.ROLE,
+    description: 'Puede actulizar roles',
+  },
+  {
+    id: 10,
+    name: PERMISSIONS_ENUM.DELETE + TABLES_ENUM.ROLE,
+    description: 'Puede eliminar roles',
+  },
+];
+
+export const roleSeeds: IBasicSeeds[] = [
+  {
+    id: 1,
+    name: 'GOD',
+    description: 'Tiene todos los permisos',
+  },
+];
+
+export const rolePermissionSeeds: IRolePermissionSeed[] = [
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 1,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 2,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 3,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 4,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 5,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 6,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 7,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 8,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 9,
+  },
+  {
+    id: 1,
+    role_id: 1,
+    permission_id: 10,
   },
 ];
