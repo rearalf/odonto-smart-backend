@@ -1,8 +1,5 @@
-export interface IPersontTypeSeeds extends IBasicSeeds {
-  id: number;
-}
-
 export interface IBasicSeeds {
+  id: number;
   name: string;
   description: string;
 }
