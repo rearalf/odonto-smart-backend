@@ -6,6 +6,7 @@ import { Odontogram } from 'src/odontogram/entities/odontogram.entity';
 import { Person } from 'src/person/entities/person.entity';
 import { BaseEntity } from 'src/db/entities/base-entity';
 import { MedicalRecord } from './medical_record.entity';
+import { Gender } from '@/common/enums/person.enum';
 
 @Entity()
 export class Patient extends BaseEntity {
@@ -65,6 +66,17 @@ export class Patient extends BaseEntity {
   })
   @Column({ type: 'boolean', default: false })
   complete_odontogram: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: Gender,
+  })
+  @ApiProperty({
+    enum: Gender,
+    example: Gender.FEMALE,
+    description: 'The gender of the patient.',
+  })
+  gender: Gender;
 
   @OneToMany(() => Appointment, (appointment) => appointment.patient)
   appointments: Appointment[];
