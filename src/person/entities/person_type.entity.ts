@@ -37,5 +37,5 @@ export class PersonType extends BaseEntity {
       },
     ],
   })
-  people: Person[];
+  person: Person[];
 }

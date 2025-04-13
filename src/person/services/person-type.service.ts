@@ -13,9 +13,19 @@ export class PersonTypeService {
 
   async findAll(): Promise<PersonType[]> {
     const personType = await this.personTypeRepository
-      .createQueryBuilder('person_type')
-      .select(['id', 'name', 'description'])
+      .createQueryBuilder('personType')
+      .select(['personType.id', 'personType.name'])
       .getMany();
+
+    return personType;
+  }
+
+  async findById(id: number): Promise<PersonType> {
+    const personType = await this.personTypeRepository
+      .createQueryBuilder('personType')
+      .select(['personType.id', 'personType.name', 'personType.description'])
+      .where('personType.id = :id', { id })
+      .getOne();
 
     return personType;
   }

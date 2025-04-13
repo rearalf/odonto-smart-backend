@@ -85,7 +85,7 @@ export class Person extends BaseEntity {
   @Column()
   user_id: number;
 
-  @OneToOne(() => PersonType, (personType) => personType.people)
+  @OneToOne(() => PersonType, (personType) => personType.person)
   @JoinColumn({ name: 'person_type_id' })
   @ApiProperty({
     description: 'The person type associated with this person.',
