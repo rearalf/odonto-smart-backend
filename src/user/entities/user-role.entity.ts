@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { BaseEntity } from 'src/db/entities/base-entity';
@@ -24,4 +24,10 @@ export class UserRole extends BaseEntity {
     type: () => Role,
   })
   role: Role;
+
+  @Column()
+  user_id: number;
+
+  @Column()
+  role_id: number;
 }

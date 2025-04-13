@@ -9,6 +9,7 @@ import { SpecialtySeed } from './specialty.seed';
 import { RoleSeed } from './role.seed';
 import { UserSeed } from './user.seed';
 import { PersonSeed } from './person.seed';
+import { UserRoleSeed } from './userRole.seed';
 
 async function runSeeders(): Promise<void> {
   const dataSource = await connectionSource.initialize();
@@ -21,6 +22,7 @@ async function runSeeders(): Promise<void> {
   const rolePermission = new RolePermissionSeed(dataSource);
   const user = new UserSeed(dataSource, configService);
   const person = new PersonSeed(dataSource);
+  const userRole = new UserRoleSeed(dataSource);
 
   try {
     await personType.execute();
@@ -30,6 +32,7 @@ async function runSeeders(): Promise<void> {
     await rolePermission.execute();
     await user.execute();
     await person.execute();
+    await userRole.execute();
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error in seeder execution: ', error);
