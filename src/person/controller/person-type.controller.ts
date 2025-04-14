@@ -31,7 +31,7 @@ export class PersonTypeController {
     description: 'Returns a person type by id.',
   })
   @ApiOkResponse({
-    description: 'List of person types retrieved successfully.',
+    description: 'Person type retrieved successfully.',
     type: BasicDto,
   })
   async findById(@Param('id') id: number): Promise<PersonType> {

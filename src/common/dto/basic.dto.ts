@@ -12,7 +12,7 @@ export class BasicDto {
   id: string;
 
   @ApiProperty({
-    example: 'Doctor',
+    example: 'Name',
     description: 'Name of the resource',
   })
   @IsString()
@@ -20,7 +20,7 @@ export class BasicDto {
   name: string;
 
   @ApiProperty({
-    example: 'This type of person is assigned appointments and specialties',
+    example: 'This is a description about the name.',
     description:
       'A detailed description of the type of person, explaining their responsibilities within the system.',
   })
@@ -39,7 +39,7 @@ export class IdNameDto {
   id: string;
 
   @ApiProperty({
-    example: 'Doctor',
+    example: 'Name',
     description: 'Name of the resource',
   })
   @IsString()
