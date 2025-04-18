@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
 import { Permission } from '../entities/permission.entity';
@@ -21,12 +21,14 @@ export class PermissionService {
   }
 
   async findById(id: number): Promise<Permission> {
-    const personType = await this.permissionRepository
+    const permission = await this.permissionRepository
       .createQueryBuilder('permission')
       .select(['permission.id', 'permission.name', 'permission.description'])
       .where('permission.id = :id', { id })
       .getOne();
 
-    return personType;
+    if (!permission) throw new NotFoundException('Permiso no encontrado.');
+
+    return permission;
   }
 }

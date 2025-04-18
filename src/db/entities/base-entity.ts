@@ -19,7 +19,7 @@ export abstract class BaseEntity {
     example: '2025-04-10T14:48:00.000Z',
     required: false,
   })
-  @CreateDateColumn({ type: 'timestamptz', nullable: true, select: false })
+  @CreateDateColumn({ type: 'timestamptz', nullable: true })
   created_at: Date;
 
   @ApiProperty({
@@ -27,7 +27,7 @@ export abstract class BaseEntity {
     example: '2025-04-10T15:00:00.000Z',
     required: false,
   })
-  @UpdateDateColumn({ type: 'timestamptz', nullable: true, select: false })
+  @UpdateDateColumn({ type: 'timestamptz', nullable: true })
   updated_at: Date;
 
   @ApiProperty({
@@ -35,6 +35,6 @@ export abstract class BaseEntity {
     example: '2025-04-11T10:00:00.000Z',
     required: false,
   })
-  @DeleteDateColumn({ type: 'timestamptz', nullable: true, select: false })
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
   deleted_at: Date;
 }
