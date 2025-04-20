@@ -27,6 +27,9 @@ export class Doctor extends BaseEntity {
   })
   person: Person;
 
+  @Column()
+  person_id: number;
+
   @OneToMany(() => DoctorSpecialty, (ds) => ds.doctor)
   @ApiProperty({
     description: 'List of specialties (secondary) assigned to this doctor.',
@@ -42,10 +45,13 @@ export class Doctor extends BaseEntity {
   })
   specialty: Specialty;
 
-  @Column({ type: 'text' })
+  @Column()
+  specialty_id: number;
+
+  @Column({ type: 'text', nullable: true })
   @ApiProperty({
     example: 'DDS, MSc in Orthodontics',
     description: 'The academic or professional qualification of the doctor.',
   })
-  qualification: string;
+  qualification?: string;
 }

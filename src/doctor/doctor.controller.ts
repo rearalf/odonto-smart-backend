@@ -1,3 +1,4 @@
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -7,17 +8,28 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+
 import { DoctorService } from './doctor.service';
+
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
+
+import { Doctor } from './entities/doctor.entity';
 
 @Controller('doctor')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
   @Post()
-  create(@Body() createDoctorDto: CreateDoctorDto): string {
-    return this.doctorService.create(createDoctorDto);
+  @ApiOperation({
+    summary: 'Create a doctor',
+    description: 'Returns a new doctor.',
+  })
+  @ApiOkResponse({
+    description: 'The doctor has been created.',
+  })
+  async create(@Body() createDoctorDto: CreateDoctorDto): Promise<Doctor> {
+    return await this.doctorService.create(createDoctorDto);
   }
 
   @Get()

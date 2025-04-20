@@ -1,4 +1,4 @@
-import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { BaseEntity } from 'src/db/entities/base-entity';
@@ -22,4 +22,10 @@ export class UserPermission extends BaseEntity {
     type: () => Permission,
   })
   permission: Permission;
+
+  @Column()
+  user_id: number;
+
+  @Column()
+  permission_id: number;
 }

@@ -1,9 +1,9 @@
-import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
 import { BaseEntity } from 'src/db/entities/base-entity';
 import { Specialty } from './specialty.entity';
 import { Doctor } from './doctor.entity';
-import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class DoctorSpecialty extends BaseEntity {
@@ -16,10 +16,16 @@ export class DoctorSpecialty extends BaseEntity {
   doctor: Doctor;
 
   @ManyToOne(() => Specialty, (specialty) => specialty.doctorSpecialty)
-  @JoinColumn({ name: 'specialty_id' }) // corrected name
+  @JoinColumn({ name: 'specialty_id' })
   @ApiProperty({
     description: 'Specialty assigned to the doctor.',
     type: () => Specialty,
   })
   specialty: Specialty;
+
+  @Column()
+  doctor_id: number;
+
+  @Column()
+  specialty_id: number;
 }
