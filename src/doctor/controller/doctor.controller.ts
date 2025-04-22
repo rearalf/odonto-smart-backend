@@ -9,12 +9,13 @@ import {
   Delete,
 } from '@nestjs/common';
 
-import { DoctorService } from './doctor.service';
+import { DoctorService } from '../services/doctor.service';
 
-import { CreateDoctorDto } from './dto/create-doctor.dto';
-import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { CreateDoctorDto } from '../dto/create-doctor.dto';
+import { UpdateDoctorDto } from '../dto/update-doctor.dto';
+import { IDoctorResponse } from '@/common/dto/doctor.dto';
 
-import { Doctor } from './entities/doctor.entity';
+import { Doctor } from '../entities/doctor.entity';
 
 @Controller('doctor')
 export class DoctorController {
@@ -38,8 +39,8 @@ export class DoctorController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number): string {
-    return this.doctorService.findOne(id);
+  async findOne(@Param('id') id: number): Promise<IDoctorResponse> {
+    return await this.doctorService.findOne(id);
   }
 
   @Patch(':id')
