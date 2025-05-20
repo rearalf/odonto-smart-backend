@@ -21,4 +21,13 @@ export class SpecialtyService {
 
     return specialty;
   }
+
+  async getAllSpecialties(): Promise<Specialty[]> {
+    const specialties = await this.specialtyRepository
+      .createQueryBuilder('specialty')
+      .select(['specialty.id', 'specialty.name', 'specialty.description'])
+      .getMany();
+
+    return specialties;
+  }
 }
