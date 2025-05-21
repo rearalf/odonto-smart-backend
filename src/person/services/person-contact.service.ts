@@ -1,0 +1,34 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PersonContact } from '../entities/person_contact.entity';
+import { EntityManager, Repository } from 'typeorm';
+import { CreatePersonContactDto } from '../dto/create-person-contact.dto';
+
+@Injectable()
+export class PersonContactService {
+  constructor(
+    @InjectRepository(PersonContact)
+    private readonly personContactRepository: Repository<PersonContact>,
+  ) {}
+
+  async create(
+    manager: EntityManager,
+    createPersonContactDtos: CreatePersonContactDto[],
+  ): Promise<PersonContact[]> {
+    const contacts: PersonContact[] = [];
+
+    for (const dto of createPersonContactDtos) {
+      const createContact = manager.create(PersonContact, {
+        contact_type: dto.contact_type,
+        contact_value: dto.contact_value,
+        person_id: dto.person_id,
+      });
+
+      contacts.push(createContact);
+    }
+
+    const savedContacts = await manager.save(PersonContact, contacts);
+
+    return savedContacts;
+  }
+}

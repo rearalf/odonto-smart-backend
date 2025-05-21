@@ -9,6 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+import { CreatePersonContactDto } from './create-person-contact.dto';
 import { CreateUserDto } from '@/user/dto/create-user.dto';
 
 export class CreatePersonDto {
@@ -54,4 +55,26 @@ export class CreatePersonDto {
   @ValidateNested()
   @Type(() => CreateUserDto)
   user: CreateUserDto;
+
+  @ApiProperty({
+    description:
+      'List of User contacts to be created and linked to this Person.',
+    type: () => [CreatePersonContactDto],
+    example: [
+      {
+        person_id: 1,
+        contact_value: 'carlos@gmail.com',
+        contact_type: 'EMAIL',
+      },
+      {
+        person_id: 1,
+        contact_value: '+50312345678',
+        contact_type: 'PHONE',
+      },
+    ],
+  })
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CreatePersonContactDto)
+  personContact?: CreatePersonContactDto[];
 }

@@ -4,10 +4,12 @@ import { EntityManager } from 'typeorm';
 import { CreatePersonDto } from '../dto/create-person.dto';
 import { UpdatePersonDto } from '../dto/update-person.dto';
 
+import { PersonContact } from '../entities/person_contact.entity';
 import { Person } from '../entities/person.entity';
 import { User } from '@/user/entities/user.entity';
 
 import { UserService } from '../../user/services/user.service';
+import { PersonContactService } from './person-contact.service';
 import { PersonTypeService } from './person-type.service';
 
 @Injectable()
@@ -15,6 +17,7 @@ export class PersonService {
   constructor(
     private readonly userService: UserService,
     private readonly personTypeService: PersonTypeService,
+    private readonly personContactService: PersonContactService,
   ) {}
 
   async createWithEnetity(
@@ -38,9 +41,21 @@ export class PersonService {
 
     const savedPerson = await manager.save(Person, createPerson);
 
+    const contacts: PersonContact[] = [];
+
+    if (createPersonDto.personContact) {
+      const savedContacts = await this.personContactService.create(
+        manager,
+        createPersonDto.personContact,
+      );
+
+      contacts.push(...savedContacts);
+    }
+
     return {
       ...savedPerson,
       user,
+      contacts,
     };
   }
 

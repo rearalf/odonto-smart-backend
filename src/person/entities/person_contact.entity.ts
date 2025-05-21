@@ -16,6 +16,12 @@ export class PersonContact extends BaseEntity {
   })
   person: Person;
 
+  @Column({
+    type: 'int',
+    nullable: false,
+  })
+  person_id: number;
+
   @Column({ type: 'varchar', length: 255 })
   @IsString()
   @IsNotEmpty({ message: 'Contact value is required.' })
