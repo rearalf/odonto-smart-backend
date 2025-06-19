@@ -13,18 +13,27 @@ export class Permission extends BaseEntity {
   @ApiProperty({
     example: 'CREATE_USER',
     description:
-      'The unique name of the permission. Each permission must have a distinct name.',
+      'The unique internal name of the permission, used programmatically. Typically uppercase.',
   })
   name: string;
 
   @Column({ type: 'varchar', length: 255 })
   @IsString()
   @ApiProperty({
-    example: 'The CREATE_USER permission grants permissions to create users.',
+    example: 'Allows the creation of new users.',
     description:
-      'A detailed description of the permissions, explaining responsibilities within the system.',
+      'A technical description explaining what the permission allows within the system.',
   })
   description: string;
+
+  @Column({ type: 'varchar', length: 255 })
+  @IsString()
+  @ApiProperty({
+    example: 'Crear usuario',
+    description:
+      'User-facing label to display this permission in the UI. Usually in Spanish and properly capitalized.',
+  })
+  label: string;
 
   @OneToMany(
     () => RolePermission,

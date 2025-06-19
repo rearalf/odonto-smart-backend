@@ -6,7 +6,7 @@ export enum PERMISSIONS_ENUM {
 }
 
 export enum TABLES_ENUM {
-  DOCTOR = '_doctor',
-  ROLE = '_role',
-  SPECIALTY = '_specialty',
+  DOCTOR = 'DOCTOR',
+  ROLE = 'ROLE',
+  SPECIALTY = 'SPECIALTY',
 }
