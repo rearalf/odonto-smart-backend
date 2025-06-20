@@ -4,6 +4,10 @@ export interface IBasicSeeds {
   description: string;
 }
 
+export interface IPermissions extends IBasicSeeds {
+  label: string;
+}
+
 export interface IRolePermissionSeed {
   id: number;
   role_id: number;

@@ -1,8 +1,10 @@
 export enum PERMISSIONS_ENUM {
-  CREATE = 'create',
-  VIEW = 'view',
-  UPDATE = 'update',
-  DELETE = 'delete',
+  CREATE = 'CREATE',
+  VIEW = 'VIEW',
+  VIEW_ONE = 'VIEW_ONE',
+  VIEW_ALL = 'VIEW_ALL',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
 }
 
 export enum TABLES_ENUM {

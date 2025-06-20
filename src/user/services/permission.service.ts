@@ -14,7 +14,7 @@ export class PermissionService {
   async findAll(): Promise<Permission[]> {
     const permissions = await this.permissionRepository
       .createQueryBuilder('permission')
-      .select(['permission.id', 'permission.name', 'permission.description'])
+      .select(['permission.id', 'permission.name', 'permission.label'])
       .getMany();
 
     return permissions;

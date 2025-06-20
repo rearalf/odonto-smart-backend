@@ -1,5 +1,10 @@
 import { PERMISSIONS_ENUM, TABLES_ENUM } from '@/common/enums/permission.enum';
-import { IBasicSeeds, IPerson, IRolePermissionSeed } from './seeders.interface';
+import {
+  IPerson,
+  IBasicSeeds,
+  IPermissions,
+  IRolePermissionSeed,
+} from './seeders.interface';
 
 export const personTypeSeeds: IBasicSeeds[] = [
   {
@@ -98,56 +103,69 @@ export const specialtiesSeeds: IBasicSeeds[] = [
   },
 ];
 
-export const permissionSeeds: IBasicSeeds[] = [
+export const permissionSeeds: IPermissions[] = [
+  // DOCTOR
   {
     id: 1,
-    name: PERMISSIONS_ENUM.CREATE + TABLES_ENUM.DOCTOR,
-    description: 'Puede crear doctores',
+    name: `${PERMISSIONS_ENUM.CREATE}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite crear doctores',
+    label: 'Crear doctores',
   },
   {
     id: 2,
-    name: PERMISSIONS_ENUM.VIEW + TABLES_ENUM.DOCTOR,
-    description: 'Puede consultar perfiles de doctores',
+    name: `${PERMISSIONS_ENUM.VIEW_ONE}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite consultar un perfil de doctor',
+    label: 'Ver perfil de doctor',
   },
   {
     id: 3,
-    name: PERMISSIONS_ENUM.VIEW + TABLES_ENUM.DOCTOR + 's',
-    description: 'Puede consultar todos los doctores',
+    name: `${PERMISSIONS_ENUM.VIEW_ALL}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite consultar todos los doctores',
+    label: 'Ver todos los doctores',
   },
   {
     id: 4,
-    name: PERMISSIONS_ENUM.UPDATE + TABLES_ENUM.DOCTOR,
-    description: 'Puede actulizar doctores',
+    name: `${PERMISSIONS_ENUM.UPDATE}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite actualizar doctores',
+    label: 'Actualizar doctores',
   },
   {
     id: 5,
-    name: PERMISSIONS_ENUM.DELETE + TABLES_ENUM.DOCTOR,
-    description: 'Puede eliminar doctores',
+    name: `${PERMISSIONS_ENUM.DELETE}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite eliminar doctores',
+    label: 'Eliminar doctores',
   },
+
+  // ROLE
   {
     id: 6,
-    name: PERMISSIONS_ENUM.CREATE + TABLES_ENUM.ROLE,
-    description: 'Puede crear roles',
+    name: `${PERMISSIONS_ENUM.CREATE}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite crear roles',
+    label: 'Crear roles',
   },
   {
     id: 7,
-    name: PERMISSIONS_ENUM.VIEW + TABLES_ENUM.ROLE,
-    description: 'Puede consultar perfiles de rol',
+    name: `${PERMISSIONS_ENUM.VIEW_ONE}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite consultar un perfil de rol',
+    label: 'Ver perfil de rol',
   },
   {
     id: 8,
-    name: PERMISSIONS_ENUM.VIEW + TABLES_ENUM.ROLE + 's',
-    description: 'Puede consultar todos los roles',
+    name: `${PERMISSIONS_ENUM.VIEW_ALL}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite consultar todos los roles',
+    label: 'Ver todos los roles',
   },
   {
     id: 9,
-    name: PERMISSIONS_ENUM.UPDATE + TABLES_ENUM.ROLE,
-    description: 'Puede actulizar roles',
+    name: `${PERMISSIONS_ENUM.UPDATE}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite actualizar roles',
+    label: 'Actualizar roles',
   },
   {
     id: 10,
-    name: PERMISSIONS_ENUM.DELETE + TABLES_ENUM.ROLE,
-    description: 'Puede eliminar roles',
+    name: `${PERMISSIONS_ENUM.DELETE}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite eliminar roles',
+    label: 'Eliminar roles',
   },
 ];
 
