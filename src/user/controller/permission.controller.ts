@@ -3,10 +3,13 @@ import { Controller, Get, Param } from '@nestjs/common';
 
 import { PermissionService } from '../services/permission.service';
 import { Permission } from '../entities/permission.entity';
-import { BasicDto, IdNameDto } from '@/common/dto/basic.dto';
+import {
+  GetOnePermission,
+  GetAllPermissionDTO,
+} from '../dto/get-permission.dto';
 
 @ApiTags('Permission')
-@Controller('Permission')
+@Controller('permission')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 
@@ -18,7 +21,7 @@ export class PermissionController {
   @ApiOkResponse({
     description: 'List of permissions retrieved successfully.',
     isArray: true,
-    type: IdNameDto,
+    type: GetAllPermissionDTO,
   })
   async findAll(): Promise<Permission[]> {
     return await this.permissionService.findAll();
@@ -31,7 +34,7 @@ export class PermissionController {
   })
   @ApiOkResponse({
     description: 'Permission retrieved successfully.',
-    type: BasicDto,
+    type: GetOnePermission,
   })
   async findById(@Param('id') id: number): Promise<Permission> {
     return this.permissionService.findById(id);
