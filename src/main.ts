@@ -1,4 +1,6 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationError } from 'class-validator';
+import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -7,7 +9,7 @@ import {
   type OpenAPIObject,
   SwaggerModule,
 } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
+import { flattenValidationErrors } from './common/utils/validation';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -28,6 +30,10 @@ async function bootstrap(): Promise<void> {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: (errors: ValidationError[]): BadRequestException => {
+        const formattedErrors = flattenValidationErrors(errors);
+        return new BadRequestException(formattedErrors);
+      },
     }),
   );
 

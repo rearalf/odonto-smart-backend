@@ -16,19 +16,25 @@ export class CreatePersonDto {
   @ApiProperty({ example: 'Carlos' })
   @IsString({ message: 'El nombre debe de ser una cadena de texto.' })
   @IsNotEmpty({ message: 'El nombre no debe estar vacio.' })
-  @Length(1, 100)
+  @Length(1, 100, {
+    message: 'El nombre debe de tener entre 1 y 100 caracteres.',
+  })
   first_name: string;
 
   @ApiProperty({ example: 'Alberto', required: false })
   @IsOptional()
   @IsString({ message: 'El segundo nombre debe de ser una cadena de texto.' })
-  @Length(1, 100)
+  @Length(1, 100, {
+    message: 'El segundo nombre debe de tener entre 1 y 100 caracteres.',
+  })
   middle_name?: string;
 
   @ApiProperty({ example: 'Cruz del Monte' })
   @IsString({ message: 'Los apellidos deben de ser una cadena de texto.' })
   @IsNotEmpty({ message: 'Los apellidos no deben estar vacio.' })
-  @Length(1, 100)
+  @Length(1, 100, {
+    message: 'Los apellidos debe de tener entre 1 y 100 caracteres.',
+  })
   last_name: string;
 
   @ApiProperty({
@@ -46,6 +52,7 @@ export class CreatePersonDto {
 
   @ApiProperty({ example: 'https://example.com/profile.jpg', required: false })
   @IsOptional()
+  @IsString()
   profile_picture?: string;
 
   @ApiProperty({

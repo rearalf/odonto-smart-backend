@@ -1,10 +1,12 @@
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiConsumes, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import {
   Controller,
   Get,
   Post,
   Body,
   Patch,
+  UseInterceptors,
   Param,
   Delete,
 } from '@nestjs/common';
@@ -22,6 +24,8 @@ export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
   @Post()
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(AnyFilesInterceptor())
   @ApiOperation({
     summary: 'Create a doctor',
     description: 'Returns a new doctor.',

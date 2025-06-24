@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { plainToInstance, Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsNumber,
-  IsOptional,
   IsString,
+  IsOptional,
   ValidateNested,
 } from 'class-validator';
 
@@ -17,14 +17,15 @@ export class CreateDoctorDto {
     description: 'The qualification of the doctor',
   })
   @IsOptional()
-  @IsString({ message: 'La calificacion debe de ser una cadena de texto.' })
+  @IsString({ message: 'La calificación debe de ser una cadena de texto.' })
   qualification?: string;
 
   @ApiProperty({
     example: 1,
     description: 'It is the specific specialty that this doctor has.',
   })
-  @IsNumber({}, { message: 'La especialidad no es valida' })
+  @Transform(({ value }: { value: string }) => parseInt(value))
+  @IsNumber({}, { message: 'La especialidad no es válida' })
   specialty_id: number;
 
   @ApiProperty({
@@ -32,14 +33,20 @@ export class CreateDoctorDto {
     description: 'It is the specialties ids',
   })
   @IsOptional()
-  @IsArray({ message: 'Las especialidades no son validos.' })
-  @IsNumber({}, { each: true, message: 'Las especialidades no son validas.' })
+  @Transform(
+    ({ value }: { value: string }) => JSON.parse(value) as Array<number>,
+  )
+  @IsArray({ message: 'Las especialidades no son válidas.' })
+  @IsNumber({}, { each: true, message: 'Las especialidades no son válidas.' })
   specialty_ids?: number[];
 
   @ApiProperty({
     description: 'Person to be created and linked to this doctor.',
     type: () => CreatePersonDto,
   })
+  @Transform(({ value }: { value: string }) =>
+    plainToInstance(CreatePersonDto, JSON.parse(value) as CreatePersonDto),
+  )
   @ValidateNested()
   @Type(() => CreatePersonDto)
   person: CreatePersonDto;

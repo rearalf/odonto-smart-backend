@@ -21,8 +21,12 @@ export class CreateUserDto {
     example: 'Hashedpassword123',
     description: 'Password of the user (hashed)',
   })
-  @MinLength(8)
-  @MaxLength(40)
+  @MinLength(8, {
+    message: 'La contraseña debe tener al menos 8 caracteres.',
+  })
+  @MaxLength(40, {
+    message: 'La contraseña no debe tener más de 40 caracteres.',
+  })
   @Matches(/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message: 'La contraseña debe tener mayúsculas, minúsculas y números.',
   })
