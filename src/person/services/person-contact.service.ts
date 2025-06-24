@@ -13,6 +13,7 @@ export class PersonContactService {
 
   async create(
     manager: EntityManager,
+    person_id: number,
     createPersonContactDtos: CreatePersonContactDto[],
   ): Promise<PersonContact[]> {
     const contacts: PersonContact[] = [];
@@ -21,7 +22,7 @@ export class PersonContactService {
       const createContact = manager.create(PersonContact, {
         contact_type: dto.contact_type,
         contact_value: dto.contact_value,
-        person_id: dto.person_id,
+        person_id: person_id,
       });
 
       contacts.push(createContact);

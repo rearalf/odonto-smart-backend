@@ -4,7 +4,6 @@ import {
   Length,
   IsEmail,
   IsString,
-  IsNumber,
   ValidateIf,
   IsNotEmpty,
   IsPhoneNumber,
@@ -13,14 +12,6 @@ import {
 import { CONTACT_TYPE_ENUM } from 'src/common/enums/person-contact.enum';
 
 export class CreatePersonContactDto {
-  @IsNumber()
-  @IsNotEmpty({ message: 'El ID de la persona es obligatorio.' })
-  @ApiProperty({
-    example: 1,
-    description: 'El ID de la persona a la que pertenece este contacto.',
-  })
-  person_id: number;
-
   @IsString({ message: 'El valor del contacto debe ser una cadena de texto.' })
   @IsNotEmpty({ message: 'El valor del contacto es obligatorio.' })
   @Length(1, 255, {

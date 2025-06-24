@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsUrl,
@@ -74,7 +81,7 @@ export class Person extends BaseEntity {
   })
   profile_picture?: string;
 
-  @OneToOne(() => User, (user) => user.person)
+  @OneToOne(() => User, (user) => user.person, { nullable: true })
   @JoinColumn({ name: 'user_id' })
   @ApiProperty({
     description: 'The user associated with this person.',
@@ -82,10 +89,10 @@ export class Person extends BaseEntity {
   })
   user: User;
 
-  @Column()
-  user_id: number;
+  @Column({ nullable: true })
+  user_id?: number;
 
-  @OneToOne(() => PersonType, (personType) => personType.person)
+  @ManyToOne(() => PersonType, (personType) => personType.person)
   @JoinColumn({ name: 'person_type_id' })
   @ApiProperty({
     description: 'The person type associated with this person.',

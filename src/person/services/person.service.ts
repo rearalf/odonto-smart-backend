@@ -46,6 +46,7 @@ export class PersonService {
     if (createPersonDto.personContact) {
       const savedContacts = await this.personContactService.create(
         manager,
+        savedPerson.id,
         createPersonDto.personContact,
       );
 
