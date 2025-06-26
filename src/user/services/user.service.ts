@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -20,6 +20,15 @@ export class UserService {
     manager: EntityManager,
     createUserDto: CreateUserDto,
   ): Promise<User> {
+    const emailValidation = await manager.findOneBy(User, {
+      email: createUserDto.email,
+    });
+
+    if (emailValidation)
+      throw new ConflictException(
+        `El correo ${createUserDto.email} ya está registrado`,
+      );
+
     const createUser = manager.create(User, {
       password: createUserDto.password,
       email: createUserDto.email,
