@@ -53,9 +53,7 @@ export class UserService {
       createUserDto.role_ids,
     );
 
-    return {
-      ...savedUser,
-    };
+    return savedUser;
   }
 
   create(_createUserDto: CreateUserDto): string {

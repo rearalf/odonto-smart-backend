@@ -1,16 +1,21 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
+import { Response } from 'express';
 
 import { Doctor } from '../entities/doctor.entity';
 
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { UpdateDoctorDto } from '../dto/update-doctor.dto';
+import { FilterDoctorDto } from '../dto/filter-doctor.dto';
 import { IDoctorResponse } from '@/common/dto/doctor.dto';
 
+import { PaginationHelper } from '@/common/helpers/pagination-helper';
 import { DoctorSpecialtyService } from './doctor-specialty.service';
 import { PersonService } from '@/person/services/person.service';
 import { SpecialtyService } from './specialty.service';
+import { unaccent } from '@/common/utils/unaccent';
+import { Specialty } from '../entities/specialty.entity';
 
 @Injectable()
 export class DoctorService {
@@ -57,8 +62,81 @@ export class DoctorService {
     });
   }
 
-  findAll(): string {
-    return `This action returns all doctor`;
+  async findAll(
+    filterDoctorDto: FilterDoctorDto,
+    res: Response,
+  ): Promise<
+    {
+      id: number;
+      specialty: {
+        id: number;
+        name: string;
+        description: string;
+      };
+      secondary_specialties: Specialty[];
+      qualification: string;
+      profile_picture: string;
+      full_name: string;
+      email: string;
+    }[]
+  > {
+    const selectQuery = this.doctorRepository.createQueryBuilder('doctor');
+
+    if (filterDoctorDto.search) {
+      const searchNormalized = unaccent(filterDoctorDto.search);
+      selectQuery
+        .where('unaccent(person.first_name) ILIKE :filtro', {
+          filtro: `%${searchNormalized}%`,
+        })
+        .orWhere('unaccent(person.middle_name) ILIKE :filtro', {
+          filtro: `%${searchNormalized}%`,
+        })
+        .orWhere('unaccent(person.last_name) ILIKE :filtro', {
+          filtro: `%${searchNormalized}%`,
+        })
+        .orWhere('unaccent(user.email) ILIKE :filtro', {
+          filtro: `%${searchNormalized}%`,
+        });
+    }
+
+    selectQuery
+      .leftJoinAndSelect('doctor.person', 'person')
+      .leftJoinAndSelect('person.user', 'user')
+      .leftJoinAndSelect('doctor.specialty', 'main_specialty')
+      .leftJoinAndSelect('doctor.doctorSpecialty', 'doctor_specialty')
+      .leftJoinAndSelect('doctor_specialty.specialty', 'secondary_specialty');
+
+    if (filterDoctorDto.pagination) {
+      PaginationHelper.paginate(
+        selectQuery,
+        filterDoctorDto.page,
+        filterDoctorDto.per_page,
+      );
+    }
+
+    const [doctors, count] = await selectQuery.getManyAndCount();
+
+    if (filterDoctorDto.pagination) {
+      PaginationHelper.setHeaders(res, count, filterDoctorDto);
+    }
+
+    const doctorsDto = doctors.map((doc) => ({
+      id: doc.id,
+      specialty: {
+        id: doc.specialty?.id,
+        name: doc.specialty?.name,
+        description: doc.specialty?.description,
+      },
+      secondary_specialties:
+        doc.doctorSpecialty?.map((ds) => ds.specialty) ?? [],
+      qualification: doc.qualification ?? null,
+      profile_picture: doc.person?.profile_picture ?? null,
+      full_name:
+        `${doc.person?.first_name ?? ''} ${doc.person?.middle_name ?? ''} ${doc.person?.last_name ?? ''}`.trim(),
+      email: doc.person?.user?.email ?? null,
+    }));
+
+    return doctorsDto;
   }
 
   async findOne(id: number): Promise<IDoctorResponse> {

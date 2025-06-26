@@ -1,5 +1,11 @@
-import { ApiConsumes, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiConsumes,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { Response as ResponseExpress } from 'express';
 import {
   Controller,
   Get,
@@ -9,14 +15,18 @@ import {
   UseInterceptors,
   Param,
   Delete,
+  Query,
+  Response,
 } from '@nestjs/common';
 
 import { DoctorService } from '../services/doctor.service';
 
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { UpdateDoctorDto } from '../dto/update-doctor.dto';
+import { FilterDoctorDto } from '../dto/filter-doctor.dto';
 import { IDoctorResponse } from '@/common/dto/doctor.dto';
 
+import { Specialty } from '../entities/specialty.entity';
 import { Doctor } from '../entities/doctor.entity';
 
 @Controller('doctor')
@@ -39,14 +49,103 @@ export class DoctorController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all the doctors',
-    description: 'Returns a list of doctor.',
+    summary: 'Retrieve a list of doctors',
+    description:
+      'Returns a list of doctors with basic information, including their main specialty, secondary specialties, qualification, and contact details.',
   })
   @ApiOkResponse({
-    description: 'The list with the minimum data of the doctors.',
+    description: 'Successfully retrieved the list of doctors.',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number', example: 1 },
+          specialty: {
+            type: 'object',
+            properties: {
+              id: { type: 'number', example: 2 },
+              name: { type: 'string', example: 'Orthodontics' },
+              description: {
+                type: 'string',
+                example: 'Aligning teeth and jaws',
+              },
+            },
+          },
+          secondary_specialties: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 3 },
+                name: { type: 'string', example: 'Periodontics' },
+                description: {
+                  type: 'string',
+                  example: 'Gum disease treatment',
+                },
+              },
+            },
+          },
+          qualification: {
+            type: 'string',
+            example:
+              'Graduated from X University with a specialty in Orthodontics.',
+          },
+          profile_picture: {
+            type: 'string',
+            example: 'https://example.com/images/profile.jpg',
+          },
+          full_name: {
+            type: 'string',
+            example: 'Dr. John Smith',
+          },
+          email: {
+            type: 'string',
+            example: 'john.smith@example.com',
+          },
+        },
+      },
+    },
   })
-  findAll(): string {
-    return this.doctorService.findAll();
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Search keyword to filter doctors by name or email.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number for pagination.',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page.',
+  })
+  async findAll(
+    @Query() filterDoctorDto: FilterDoctorDto,
+    @Response() res: ResponseExpress,
+  ): Promise<
+    ResponseExpress<
+      {
+        id: number;
+        specialty: {
+          id: number;
+          name: string;
+          description: string;
+        };
+        secondary_specialties: Specialty[];
+        qualification: string;
+        profile_picture: string;
+        full_name: string;
+        email: string;
+      }[]
+    >
+  > {
+    const response = await this.doctorService.findAll(filterDoctorDto, res);
+    return res.json(response);
   }
 
   @Get(':id')

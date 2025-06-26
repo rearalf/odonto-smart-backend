@@ -1,6 +1,14 @@
-import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { IsEmail, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import * as bcrypt from 'bcryptjs';
 
 import { BaseEntity } from 'src/db/entities/base-entity';
 import { UserRole } from './user-role.entity';
@@ -58,4 +66,14 @@ export class User extends BaseEntity {
     example: { first_name: 'Carlos', last_name: 'Cruz' },
   })
   person: Person;
+
+  @BeforeInsert()
+  checkFieldsBeforeInsert(): void {
+    this.hashPassword();
+    this.email = this.email.toLocaleLowerCase().trim();
+  }
+
+  hashPassword(): void {
+    this.password = bcrypt.hashSync(this.password, 10);
+  }
 }
