@@ -15,7 +15,6 @@ import { DoctorSpecialtyService } from './doctor-specialty.service';
 import { PersonService } from '@/person/services/person.service';
 import { SpecialtyService } from './specialty.service';
 import { unaccent } from '@/common/utils/unaccent';
-import { Specialty } from '../entities/specialty.entity';
 
 @Injectable()
 export class DoctorService {
@@ -73,7 +72,11 @@ export class DoctorService {
         name: string;
         description: string;
       };
-      secondary_specialties: Specialty[];
+      secondary_specialties: {
+        id: number;
+        name: string;
+        description: string;
+      }[];
       qualification: string;
       profile_picture: string;
       full_name: string;
@@ -128,7 +131,13 @@ export class DoctorService {
         description: doc.specialty?.description,
       },
       secondary_specialties:
-        doc.doctorSpecialty?.map((ds) => ds.specialty) ?? [],
+        doc.doctorSpecialty?.map((ds) => {
+          return {
+            id: ds.specialty.id,
+            name: ds.specialty.name,
+            description: ds.specialty.description,
+          };
+        }) ?? [],
       qualification: doc.qualification ?? null,
       profile_picture: doc.person?.profile_picture ?? null,
       full_name:
