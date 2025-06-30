@@ -22,7 +22,7 @@ async function bootstrap(): Promise<void> {
   app.enableCors({
     origin: allowedOrigins === '*' ? true : allowedOrigins.split(','),
     credentials: true,
-    exposedHeaders: [],
+    exposedHeaders: ['page', 'per_page', 'total_count', 'total_pages'],
   });
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
