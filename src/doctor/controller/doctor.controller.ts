@@ -16,12 +16,14 @@ import {
 
 import { DoctorService } from '../services/doctor.service';
 
-import { DoctorListItemSchema } from '../schemas/doctor-list-item.schema';
+import {
+  DoctorItemSchema,
+  DoctorListItemSchema,
+} from '../schemas/doctor-list-item.schema';
 
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { UpdateDoctorDto } from '../dto/update-doctor.dto';
 import { FilterDoctorDto } from '../dto/filter-doctor.dto';
-import { IDoctorResponse } from '@/common/dto/doctor.dto';
 
 import { Doctor } from '../entities/doctor.entity';
 
@@ -69,10 +71,11 @@ export class DoctorController {
       'Returns all the information about a doctor by id, except user information.',
   })
   @ApiOkResponse({
+    type: DoctorItemSchema,
     description:
       'Get all the information about a doctor by id, except user information.',
   })
-  async findOne(@Param('id') id: number): Promise<IDoctorResponse> {
+  async findOne(@Param('id') id: number): Promise<DoctorItemSchema> {
     return await this.doctorService.findOne(id);
   }
 

@@ -37,3 +37,38 @@ export class DoctorListItemSchema {
   @ApiProperty({ example: 'john.smith@example.com' })
   email: string;
 }
+
+export class DoctorItemSchema {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 'Expert in dental surgery', nullable: true })
+  qualification: string | null;
+
+  @ApiProperty({ type: SpecialtySchema })
+  specialty: SpecialtySchema;
+
+  @ApiProperty({ type: [SpecialtySchema] })
+  specialties: SpecialtySchema[];
+
+  @ApiProperty({ example: 'John' })
+  first_name: string;
+
+  @ApiProperty({ example: 'A.' })
+  middle_name: string;
+
+  @ApiProperty({ example: 'Doe' })
+  last_name: string;
+
+  @ApiProperty({ example: 'Dr. John Smith' })
+  full_name: string;
+
+  @ApiProperty({ example: 'john.doe@example.com' })
+  email: string;
+
+  @ApiProperty({ type: [SpecialtySchema] })
+  roles: SpecialtySchema[];
+
+  @ApiProperty({ type: [SpecialtySchema] })
+  permissions: SpecialtySchema[];
+}

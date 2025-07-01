@@ -27,7 +27,7 @@ export class User extends BaseEntity {
   })
   email: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, select: false })
   @Length(8, 32)
   @ApiProperty({
     example: 'hashedpassword123',

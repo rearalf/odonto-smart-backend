@@ -8,14 +8,16 @@ import { Doctor } from '../entities/doctor.entity';
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { UpdateDoctorDto } from '../dto/update-doctor.dto';
 import { FilterDoctorDto } from '../dto/filter-doctor.dto';
-import { IDoctorResponse } from '@/common/dto/doctor.dto';
 
 import { PaginationHelper } from '@/common/helpers/pagination-helper';
 import { DoctorSpecialtyService } from './doctor-specialty.service';
 import { PersonService } from '@/person/services/person.service';
 import { SpecialtyService } from './specialty.service';
 import { unaccent } from '@/common/utils/unaccent';
-import { DoctorListItemSchema } from '../schemas/doctor-list-item.schema';
+import {
+  DoctorItemSchema,
+  DoctorListItemSchema,
+} from '../schemas/doctor-list-item.schema';
 
 @Injectable()
 export class DoctorService {
@@ -158,7 +160,7 @@ export class DoctorService {
     return doctorsDto;
   }
 
-  async findOne(id: number): Promise<IDoctorResponse> {
+  async findOne(id: number): Promise<DoctorItemSchema> {
     const doctor: Doctor = await this.doctorRepository
       .createQueryBuilder('doctor')
       .leftJoinAndSelect('doctor.specialty', 'mainSpecialty')
@@ -173,15 +175,16 @@ export class DoctorService {
       .where('doctor.id = :id', { id })
       .getOne();
 
-    const specialties = [];
-    const roles = [];
-    const permissions = [];
+    const specialties: { id: number; name: string; description: string }[] = [];
+    const roles: { id: number; name: string; description: string }[] = [];
+    const permissions: { id: number; name: string; description: string }[] = [];
 
     if (doctor.doctorSpecialty.length > 0) {
       for (const specialty of doctor.doctorSpecialty) {
         specialties.push({
           id: specialty.specialty.id,
           name: specialty.specialty.name,
+          description: specialty.specialty.description,
         });
       }
     }
@@ -191,6 +194,7 @@ export class DoctorService {
         roles.push({
           id: role.role.id,
           name: role.role.name,
+          description: role.role.description,
         });
       }
     }
@@ -200,11 +204,12 @@ export class DoctorService {
         permissions.push({
           id: permission.permission.id,
           name: permission.permission.name,
+          description: permission.permission.description,
         });
       }
     }
 
-    const returnJson = {
+    const returnJson: DoctorItemSchema = {
       id: doctor.id,
       qualification: doctor.qualification || null,
       specialty: {
@@ -213,11 +218,12 @@ export class DoctorService {
         description: doctor.specialty.description,
       },
       specialties,
+      full_name:
+        `${doctor.person.first_name ?? ''} ${doctor.person?.middle_name ?? ''} ${doctor.person.last_name ?? ''}`.trim(),
       first_name: doctor.person.first_name,
       middle_name: doctor.person.middle_name,
       last_name: doctor.person.last_name,
       email: doctor.person.user.email,
-      password: doctor.person.user.password,
       roles,
       permissions,
     };
