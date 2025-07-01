@@ -1,5 +1,5 @@
+import { Repository, DataSource, Brackets, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -15,6 +15,7 @@ import { DoctorSpecialtyService } from './doctor-specialty.service';
 import { PersonService } from '@/person/services/person.service';
 import { SpecialtyService } from './specialty.service';
 import { unaccent } from '@/common/utils/unaccent';
+import { DoctorListItemSchema } from '../schemas/doctor-list-item.schema';
 
 @Injectable()
 export class DoctorService {
@@ -64,25 +65,7 @@ export class DoctorService {
   async findAll(
     filterDoctorDto: FilterDoctorDto,
     res: Response,
-  ): Promise<
-    {
-      id: number;
-      specialty: {
-        id: number;
-        name: string;
-        description: string;
-      };
-      secondary_specialties: {
-        id: number;
-        name: string;
-        description: string;
-      }[];
-      qualification: string;
-      profile_picture: string;
-      full_name: string;
-      email: string;
-    }[]
-  > {
+  ): Promise<DoctorListItemSchema[]> {
     const selectQuery = this.doctorRepository.createQueryBuilder('doctor');
 
     if (filterDoctorDto.search) {
@@ -102,12 +85,36 @@ export class DoctorService {
         });
     }
 
+    let matchingIdsQuery: SelectQueryBuilder<Doctor>;
+
+    if (filterDoctorDto.specialtyId) {
+      matchingIdsQuery = this.doctorRepository
+        .createQueryBuilder('doctor')
+        .leftJoin('doctor.doctorSpecialty', 'doctor_specialty')
+        .where(
+          new Brackets((qb) => {
+            qb.where('doctor.specialty_id = :specialtyId', {
+              specialtyId: filterDoctorDto.specialtyId,
+            }).orWhere('doctor_specialty.specialty_id = :specialtyId', {
+              specialtyId: filterDoctorDto.specialtyId,
+            });
+          }),
+        )
+        .select('doctor.id');
+    }
+
     selectQuery
       .leftJoinAndSelect('doctor.person', 'person')
       .leftJoinAndSelect('person.user', 'user')
       .leftJoinAndSelect('doctor.specialty', 'main_specialty')
       .leftJoinAndSelect('doctor.doctorSpecialty', 'doctor_specialty')
       .leftJoinAndSelect('doctor_specialty.specialty', 'secondary_specialty');
+
+    if (filterDoctorDto.specialtyId) {
+      selectQuery
+        .andWhere(`doctor.id IN (${matchingIdsQuery.getQuery()})`)
+        .setParameters(matchingIdsQuery.getParameters());
+    }
 
     if (filterDoctorDto.pagination) {
       PaginationHelper.paginate(

@@ -1,7 +1,8 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 import { PaginationDto } from '@/common/dto/pagination.dto';
+import { Type } from 'class-transformer';
 
 export class FilterDoctorDto extends PaginationDto {
   @ApiPropertyOptional({
@@ -11,4 +12,14 @@ export class FilterDoctorDto extends PaginationDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID of the specialty to filter doctors by.',
+    example: 2,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @IsPositive()
+  specialtyId?: number;
 }
