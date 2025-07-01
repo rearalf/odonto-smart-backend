@@ -70,19 +70,22 @@ export class DoctorService {
 
     if (filterDoctorDto.search) {
       const searchNormalized = unaccent(filterDoctorDto.search);
-      selectQuery
-        .where('unaccent(person.first_name) ILIKE :filtro', {
-          filtro: `%${searchNormalized}%`,
-        })
-        .orWhere('unaccent(person.middle_name) ILIKE :filtro', {
-          filtro: `%${searchNormalized}%`,
-        })
-        .orWhere('unaccent(person.last_name) ILIKE :filtro', {
-          filtro: `%${searchNormalized}%`,
-        })
-        .orWhere('unaccent(user.email) ILIKE :filtro', {
-          filtro: `%${searchNormalized}%`,
-        });
+      selectQuery.andWhere(
+        new Brackets((qb) => {
+          qb.where('unaccent(person.first_name) ILIKE :filtro', {
+            filtro: `%${searchNormalized}%`,
+          })
+            .orWhere('unaccent(person.middle_name) ILIKE :filtro', {
+              filtro: `%${searchNormalized}%`,
+            })
+            .orWhere('unaccent(person.last_name) ILIKE :filtro', {
+              filtro: `%${searchNormalized}%`,
+            })
+            .orWhere('unaccent(user.email) ILIKE :filtro', {
+              filtro: `%${searchNormalized}%`,
+            });
+        }),
+      );
     }
 
     let matchingIdsQuery: SelectQueryBuilder<Doctor>;
