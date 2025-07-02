@@ -177,7 +177,12 @@ export class DoctorService {
 
     const specialties: { id: number; name: string; description: string }[] = [];
     const roles: { id: number; name: string; description: string }[] = [];
-    const permissions: { id: number; name: string; description: string }[] = [];
+    const permissions: {
+      id: number;
+      name: string;
+      description: string;
+      label: string;
+    }[] = [];
 
     if (doctor.doctorSpecialty.length > 0) {
       for (const specialty of doctor.doctorSpecialty) {
@@ -204,6 +209,7 @@ export class DoctorService {
         permissions.push({
           id: permission.permission.id,
           name: permission.permission.name,
+          label: permission.permission.label,
           description: permission.permission.description,
         });
       }

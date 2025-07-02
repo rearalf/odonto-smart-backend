@@ -10,6 +10,10 @@ class SpecialtySchema {
   @ApiProperty({ example: 'Gum disease treatment' })
   description: string;
 }
+class PermissionSchema extends SpecialtySchema {
+  @ApiProperty({ example: 'Gum disease treatment' })
+  label: string;
+}
 
 export class DoctorListItemSchema {
   @ApiProperty({ example: 1 })
@@ -70,5 +74,5 @@ export class DoctorItemSchema {
   roles: SpecialtySchema[];
 
   @ApiProperty({ type: [SpecialtySchema] })
-  permissions: SpecialtySchema[];
+  permissions: PermissionSchema[];
 }
