@@ -43,14 +43,14 @@ export class RoleController {
     return this.roleService.findById(id);
   }
 
-  @Post()
+  @Post('create-role')
   @ApiOperation({
     summary: 'Create a new role.',
     description: 'Returns a new role.',
   })
   @ApiCreatedResponse({
     description: 'The role has been created.',
-    type: BasicDto,
+    type: CreateRoleDto,
   })
   async create(@Body() createRoleDto: CreateRoleDto): Promise<Role> {
     return this.roleService.create(createRoleDto);
