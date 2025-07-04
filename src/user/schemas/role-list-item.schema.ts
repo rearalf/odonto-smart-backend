@@ -37,7 +37,14 @@ export class RoleListItemSchema {
   description: string;
 
   @ApiProperty({
-    example: 'This role has full control',
+    example: [
+      {
+        id: 1,
+        name: 'CREATE_USER',
+        label: 'Crear usuario',
+        description: 'This permission allows you to create users',
+      },
+    ],
     description:
       'Optional description providing additional details about the role.',
     required: false,
