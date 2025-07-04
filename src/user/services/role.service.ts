@@ -1,5 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Brackets, DataSource, Repository } from 'typeorm';
+import { Response } from 'express';
 import {
   Injectable,
   ConflictException,
@@ -7,12 +8,18 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 
-import { CreateRoleDto } from '../dto/create-role.dto';
-
 import { Role } from '../entities/role.entity';
+
+import { unaccent } from '@/common/utils/unaccent';
+import { PaginationHelper } from '@/common/helpers/pagination-helper';
 
 import { RolePermissionService } from './role-permission.service';
 import { PermissionService } from './permission.service';
+
+import { RoleListItemSchema } from '../schemas/role-list-item.schema';
+
+import { CreateRoleDto } from '../dto/create-role.dto';
+import { FilterRoleDto } from '../dto/filter-role.dto';
 
 @Injectable()
 export class RoleService {
@@ -24,13 +31,58 @@ export class RoleService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async findAll(): Promise<Role[]> {
-    const roles = await this.roleRepository
-      .createQueryBuilder('role')
-      .select(['role.id', 'role.name'])
-      .getMany();
+  async findAll(
+    filterRoleDto: FilterRoleDto,
+    res: Response,
+  ): Promise<RoleListItemSchema[]> {
+    const selectQuery = this.roleRepository.createQueryBuilder('role');
 
-    return roles;
+    if (filterRoleDto.search) {
+      const searchNormalized = unaccent(filterRoleDto.search);
+
+      selectQuery.andWhere(
+        new Brackets((qb) => {
+          qb.where('unaccent(role.name) ILIKE :filtro', {
+            filtro: `%${searchNormalized}%`,
+          });
+        }),
+      );
+    }
+
+    selectQuery
+      .leftJoinAndSelect('role.role_permission', 'role_permission')
+      .leftJoinAndSelect('role_permission.permission', 'permission')
+      .andWhere('role.name != :excludedRoleName', {
+        excludedRoleName: 'SuperAdmin',
+      });
+
+    if (filterRoleDto.pagination) {
+      PaginationHelper.paginate(
+        selectQuery,
+        filterRoleDto.page,
+        filterRoleDto.per_page,
+      );
+    }
+
+    const [roles, count] = await selectQuery.getManyAndCount();
+
+    if (filterRoleDto.pagination) {
+      PaginationHelper.setHeaders(res, count, filterRoleDto);
+    }
+
+    const rolesDto = roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+      description: role.description,
+      permissions: role.role_permission.map((rolePermission) => ({
+        id: rolePermission.permission.id,
+        name: rolePermission.permission.name,
+        description: rolePermission.permission.description,
+        label: rolePermission.permission.label,
+      })),
+    }));
+
+    return rolesDto;
   }
 
   async findById(id: number): Promise<Role> {

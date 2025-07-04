@@ -1,15 +1,28 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Response as ResponseExpress } from 'express';
 import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
   ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiCreatedResponse,
 } from '@nestjs/swagger';
+import {
+  Get,
+  Body,
+  Post,
+  Query,
+  Param,
+  Delete,
+  Response,
+  Controller,
+} from '@nestjs/common';
 
-import { BasicDto, IdNameDto } from '@/common/dto/basic.dto';
 import { RoleService } from '../services/role.service';
 import { Role } from '../entities/role.entity';
+
+import { BasicDto } from '@/common/dto/basic.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
+import { FilterRoleDto } from '../dto/filter-role.dto';
+import { RoleListItemSchema } from '../schemas/role-list-item.schema';
 
 @ApiTags('Role')
 @Controller('role')
@@ -24,10 +37,14 @@ export class RoleController {
   @ApiOkResponse({
     description: 'List of roles retrieved successfully.',
     isArray: true,
-    type: IdNameDto,
+    type: RoleListItemSchema,
   })
-  async findAll(): Promise<Role[]> {
-    return await this.roleService.findAll();
+  async findAll(
+    @Query() filterRoleDto: FilterRoleDto,
+    @Response() res: ResponseExpress,
+  ): Promise<ResponseExpress<RoleListItemSchema[]>> {
+    const response = await this.roleService.findAll(filterRoleDto, res);
+    return res.json(response);
   }
 
   @Get(':id')
