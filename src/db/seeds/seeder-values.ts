@@ -172,7 +172,7 @@ export const permissionSeeds: IPermissions[] = [
 export const roleSeeds: IBasicSeeds[] = [
   {
     id: 1,
-    name: 'GOD',
+    name: 'SuperAdmin',
     description: 'Tiene todos los permisos',
   },
 ];
