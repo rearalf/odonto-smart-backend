@@ -6,6 +6,7 @@ export interface IBasicSeeds {
 
 export interface IPermissions extends IBasicSeeds {
   label: string;
+  parentId?: number | null;
 }
 
 export interface IRolePermissionSeed {

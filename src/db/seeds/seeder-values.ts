@@ -104,68 +104,92 @@ export const specialtiesSeeds: IBasicSeeds[] = [
 ];
 
 export const permissionSeeds: IPermissions[] = [
-  // DOCTOR
+  // DOCTOR (Grupo padre)
   {
     id: 1,
-    name: `${PERMISSIONS_ENUM.CREATE}_${TABLES_ENUM.DOCTOR}`,
-    description: 'Permite crear doctores',
-    label: 'Crear doctores',
+    name: 'GROUP_DOCTOR',
+    description: 'Agrupa todos los permisos relacionados con doctores',
+    label: 'Permisos de doctores',
+    parentId: null,
   },
   {
     id: 2,
-    name: `${PERMISSIONS_ENUM.VIEW_ONE}_${TABLES_ENUM.DOCTOR}`,
-    description: 'Permite consultar un perfil de doctor',
-    label: 'Ver perfil de doctor',
+    name: `${PERMISSIONS_ENUM.CREATE}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite crear doctores',
+    label: 'Crear doctores',
+    parentId: 1,
   },
   {
     id: 3,
-    name: `${PERMISSIONS_ENUM.VIEW_ALL}_${TABLES_ENUM.DOCTOR}`,
-    description: 'Permite consultar todos los doctores',
-    label: 'Ver todos los doctores',
+    name: `${PERMISSIONS_ENUM.VIEW_ONE}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite consultar un perfil de doctor',
+    label: 'Ver perfil de doctor',
+    parentId: 1,
   },
   {
     id: 4,
-    name: `${PERMISSIONS_ENUM.UPDATE}_${TABLES_ENUM.DOCTOR}`,
-    description: 'Permite actualizar doctores',
-    label: 'Actualizar doctores',
+    name: `${PERMISSIONS_ENUM.VIEW_ALL}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite consultar todos los doctores',
+    label: 'Ver todos los doctores',
+    parentId: 1,
   },
   {
     id: 5,
+    name: `${PERMISSIONS_ENUM.UPDATE}_${TABLES_ENUM.DOCTOR}`,
+    description: 'Permite actualizar doctores',
+    label: 'Actualizar doctores',
+    parentId: 1,
+  },
+  {
+    id: 6,
     name: `${PERMISSIONS_ENUM.DELETE}_${TABLES_ENUM.DOCTOR}`,
     description: 'Permite eliminar doctores',
     label: 'Eliminar doctores',
+    parentId: 1,
   },
 
-  // ROLE
-  {
-    id: 6,
-    name: `${PERMISSIONS_ENUM.CREATE}_${TABLES_ENUM.ROLE}`,
-    description: 'Permite crear roles',
-    label: 'Crear roles',
-  },
+  // ROLE (Grupo padre)
   {
     id: 7,
-    name: `${PERMISSIONS_ENUM.VIEW_ONE}_${TABLES_ENUM.ROLE}`,
-    description: 'Permite consultar un perfil de rol',
-    label: 'Ver perfil de rol',
+    name: 'GROUP_ROLE',
+    description: 'Agrupa todos los permisos relacionados con roles',
+    label: 'Permisos de roles',
+    parentId: null,
   },
   {
     id: 8,
-    name: `${PERMISSIONS_ENUM.VIEW_ALL}_${TABLES_ENUM.ROLE}`,
-    description: 'Permite consultar todos los roles',
-    label: 'Ver todos los roles',
+    name: `${PERMISSIONS_ENUM.CREATE}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite crear roles',
+    label: 'Crear roles',
+    parentId: 7,
   },
   {
     id: 9,
-    name: `${PERMISSIONS_ENUM.UPDATE}_${TABLES_ENUM.ROLE}`,
-    description: 'Permite actualizar roles',
-    label: 'Actualizar roles',
+    name: `${PERMISSIONS_ENUM.VIEW_ONE}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite consultar un perfil de rol',
+    label: 'Ver perfil de rol',
+    parentId: 7,
   },
   {
     id: 10,
+    name: `${PERMISSIONS_ENUM.VIEW_ALL}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite consultar todos los roles',
+    label: 'Ver todos los roles',
+    parentId: 7,
+  },
+  {
+    id: 11,
+    name: `${PERMISSIONS_ENUM.UPDATE}_${TABLES_ENUM.ROLE}`,
+    description: 'Permite actualizar roles',
+    label: 'Actualizar roles',
+    parentId: 7,
+  },
+  {
+    id: 12,
     name: `${PERMISSIONS_ENUM.DELETE}_${TABLES_ENUM.ROLE}`,
     description: 'Permite eliminar roles',
     label: 'Eliminar roles',
+    parentId: 7,
   },
 ];
 

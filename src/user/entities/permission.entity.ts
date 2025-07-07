@@ -1,5 +1,5 @@
-import { Column, Entity, OneToMany } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { Column, Entity, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
 import { RolePermission } from './role-permission.entity';
@@ -58,4 +58,23 @@ export class Permission extends BaseEntity {
     example: [{ userId: 1, permissionId: 2 }],
   })
   user_permission: UserPermission[];
+
+  @ManyToOne(() => Permission, (permission) => permission.children, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'parent_permission_id' })
+  @ApiPropertyOptional({
+    type: () => Permission,
+    description:
+      'Optional parent permission used to group related permissions.',
+  })
+  parent?: Permission;
+
+  @OneToMany(() => Permission, (permission) => permission.parent)
+  @ApiProperty({
+    type: () => [Permission],
+    description: 'Child permissions grouped under this permission.',
+  })
+  children: Permission[];
 }
