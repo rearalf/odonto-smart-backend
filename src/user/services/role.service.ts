@@ -20,6 +20,7 @@ import { RoleListItemSchema } from '../schemas/role-list-item.schema';
 
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { FilterRoleDto } from '../dto/filter-role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
 
 @Injectable()
 export class RoleService {
@@ -141,6 +142,43 @@ export class RoleService {
           role.id,
           permission_id,
         );
+
+      return role;
+    });
+  }
+
+  async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
+    const { permission_id } = updateRoleDto;
+
+    for (const id of permission_id) await this.permissionService.findById(id);
+
+    const role = await this.roleRepository.findOne({
+      where: { id },
+      relations: ['role_permissions'],
+    });
+
+    if (!role) throw new NotFoundException('Rol no encontrado.');
+
+    const existing = await this.roleRepository.findOne({
+      where: { name: updateRoleDto.name },
+      withDeleted: true,
+    });
+
+    if (existing && existing.id !== id && !existing.deleted_at)
+      throw new ConflictException('Ya existe un rol con este nombre.');
+
+    for (const pid of permission_id) await this.permissionService.findById(pid);
+
+    return await this.dataSource.transaction(async (manager) => {
+      role.name = updateRoleDto.name;
+      role.description = updateRoleDto.description;
+      await manager.save(Role, role);
+
+      await this.rolePermissionService.restoreRolePermission(
+        manager,
+        id,
+        permission_id,
+      );
 
       return role;
     });

@@ -4,6 +4,7 @@ import {
   ApiOperation,
   ApiOkResponse,
   ApiCreatedResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import {
   Get,
@@ -14,6 +15,7 @@ import {
   Delete,
   Response,
   Controller,
+  Put,
 } from '@nestjs/common';
 
 import { RoleService } from '../services/role.service';
@@ -23,6 +25,7 @@ import { BasicDto } from '@/common/dto/basic.dto';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { FilterRoleDto } from '../dto/filter-role.dto';
 import { RoleListItemSchema } from '../schemas/role-list-item.schema';
+import { UpdateRoleDto } from '../dto/update-role.dto';
 
 @ApiTags('Role')
 @Controller('role')
@@ -71,6 +74,28 @@ export class RoleController {
   })
   async create(@Body() createRoleDto: CreateRoleDto): Promise<Role> {
     return this.roleService.create(createRoleDto);
+  }
+
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Update a role',
+    description:
+      'Updates the name, description, and associated permissions of a role by its ID.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the role to update',
+    example: 3,
+  })
+  @ApiOkResponse({
+    description: 'Role updated successfully',
+  })
+  async updateRole(
+    @Param('id') id: number,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ): Promise<Role> {
+    return this.roleService.update(id, updateRoleDto);
   }
 
   @Delete(':id')

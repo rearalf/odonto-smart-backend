@@ -41,14 +41,24 @@ export class RolePermissionService {
       );
 
       if (existing) {
-        if (existing.deleted_at) toRestore.push(existing.permission_id);
+        if (existing.deleted_at) toRestore.push(permission_id);
       } else {
         toInsert.push(permission_id);
       }
     }
 
-    if (toInsert.length > 0) {
-      await this.createMulty(entityManager, role_id, toInsert);
+    const currentActive = allRolePermissions.filter((rp) => !rp.deleted_at);
+    const toDelete = currentActive
+      .filter((rp) => !newPermissionIds.includes(rp.permission_id))
+      .map((rp) => rp.permission_id);
+
+    if (toDelete.length > 0) {
+      await repo
+        .createQueryBuilder()
+        .softDelete()
+        .where('role_id = :role_id', { role_id })
+        .andWhere('permission_id IN (:...toDelete)', { toDelete })
+        .execute();
     }
 
     if (toRestore.length > 0) {
@@ -60,9 +70,12 @@ export class RolePermissionService {
           .andWhere('role_permission.permission_id = :permission_id', {
             permission_id,
           })
-          .returning('*')
           .execute();
       }
+    }
+
+    if (toInsert.length > 0) {
+      await this.createMulty(entityManager, role_id, toInsert);
     }
   }
 
