@@ -59,7 +59,12 @@ export class RoleController {
     description: 'Role retrieved successfully.',
     type: BasicDto,
   })
-  async findById(@Param('id') id: number): Promise<Role> {
+  async findById(@Param('id') id: number): Promise<{
+    id: number;
+    name: string;
+    description: string;
+    permission: number[];
+  }> {
     return this.roleService.findById(id);
   }
 

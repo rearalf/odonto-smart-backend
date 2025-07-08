@@ -86,16 +86,37 @@ export class RoleService {
     return rolesDto;
   }
 
-  async findById(id: number): Promise<Role> {
+  async findById(id: number): Promise<{
+    id: number;
+    name: string;
+    description: string;
+    permission: number[];
+  }> {
     const role = await this.roleRepository
       .createQueryBuilder('role')
-      .select(['role.id', 'role.name', 'role.description'])
+      .leftJoin('role.role_permission', 'role_permission')
+      .leftJoin('role_permission.permission', 'permission')
+      .select([
+        'role.id',
+        'role.name',
+        'role.description',
+        'role_permission.id',
+        'permission.id',
+        'permission.name',
+      ])
       .where('role.id = :id', { id })
       .getOne();
 
     if (!role) throw new NotFoundException('Rol no encontrado.');
 
-    return role;
+    const roleDto = {
+      id: role.id,
+      name: role.name,
+      description: role.description,
+      permission: role.role_permission.map((perm) => perm.permission.id),
+    };
+
+    return roleDto;
   }
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
@@ -154,7 +175,7 @@ export class RoleService {
 
     const role = await this.roleRepository.findOne({
       where: { id },
-      relations: ['role_permissions'],
+      relations: ['role_permission'],
     });
 
     if (!role) throw new NotFoundException('Rol no encontrado.');
