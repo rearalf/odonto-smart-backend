@@ -11,3 +11,22 @@ export class FilterRoleDto extends PaginationDto {
   @IsString()
   search?: string;
 }
+
+export class RoleWithPermissionsDto {
+  id: number;
+  name: string;
+  description: string;
+  permission: number[];
+  permissionsGroup: {
+    id: number;
+    name: string;
+    label: string;
+    description: string;
+    children: {
+      id: number;
+      name: string;
+      label: string;
+      description: string;
+    }[];
+  }[];
+}

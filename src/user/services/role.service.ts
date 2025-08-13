@@ -19,7 +19,7 @@ import { PermissionService } from './permission.service';
 import { RoleListItemSchema } from '../schemas/role-list-item.schema';
 
 import { CreateRoleDto } from '../dto/create-role.dto';
-import { FilterRoleDto } from '../dto/filter-role.dto';
+import { FilterRoleDto, RoleWithPermissionsDto } from '../dto/filter-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 
 @Injectable()
@@ -86,37 +86,107 @@ export class RoleService {
     return rolesDto;
   }
 
-  async findById(id: number): Promise<{
-    id: number;
-    name: string;
-    description: string;
-    permission: number[];
-  }> {
-    const role = await this.roleRepository
-      .createQueryBuilder('role')
-      .leftJoin('role.role_permission', 'role_permission')
-      .leftJoin('role_permission.permission', 'permission')
-      .select([
-        'role.id',
-        'role.name',
-        'role.description',
-        'role_permission.id',
-        'permission.id',
-        'permission.name',
-      ])
-      .where('role.id = :id', { id })
-      .getOne();
+  async findById(
+    id: number,
+    withPermission: boolean = false,
+  ): Promise<RoleWithPermissionsDto> {
+    let role: Role;
+
+    if (withPermission) {
+      role = await this.roleRepository
+        .createQueryBuilder('role')
+        .leftJoinAndSelect('role.role_permission', 'rolePermission')
+        .leftJoinAndSelect('rolePermission.permission', 'permission')
+        .leftJoinAndSelect('permission.parent', 'parentPermission')
+        .where('role.id = :roleId', { roleId: id })
+        .getOne();
+    } else {
+      role = await this.roleRepository
+        .createQueryBuilder('role')
+        .leftJoin('role.role_permission', 'role_permission')
+        .leftJoin('role_permission.permission', 'permission')
+        .select([
+          'role.id',
+          'role.name',
+          'role.description',
+          'role_permission.id',
+          'permission.id',
+        ])
+        .where('role.id = :id', { id })
+        .getOne();
+    }
 
     if (!role) throw new NotFoundException('Rol no encontrado.');
 
-    const roleDto = {
+    let permissionsGroup: {
+      id: number;
+      name: string;
+      label: string;
+      description: string;
+      children: {
+        id: number;
+        name: string;
+        label: string;
+        description: string;
+      }[];
+    }[] = [];
+
+    let permissionIds: number[] = [];
+
+    if (withPermission) {
+      const grouped: typeof permissionsGroup = [];
+
+      for (const rp of role.role_permission ?? []) {
+        const perm = rp.permission;
+        const parent = perm.parent;
+
+        if (parent) {
+          let parentGroup = grouped.find((g) => g.id === parent.id);
+          if (!parentGroup) {
+            parentGroup = {
+              id: parent.id,
+              name: parent.name,
+              label: parent.label,
+              description: parent.description,
+              children: [],
+            };
+            grouped.push(parentGroup);
+          }
+
+          if (!parentGroup.children.some((c) => c.id === perm.id)) {
+            parentGroup.children.push({
+              id: perm.id,
+              name: perm.name,
+              label: perm.label,
+              description: perm.description,
+            });
+          }
+        } else {
+          const existing = grouped.find((g) => g.id === perm.id);
+          if (!existing) {
+            grouped.push({
+              id: perm.id,
+              name: perm.name,
+              label: perm.label,
+              description: perm.description,
+              children: [],
+            });
+          }
+        }
+      }
+
+      permissionsGroup = grouped;
+    }
+
+    permissionIds = role.role_permission.map((rp) => rp.permission.id);
+
+    return {
       id: role.id,
       name: role.name,
       description: role.description,
-      permission: role.role_permission.map((perm) => perm.permission.id),
+      permission: permissionIds,
+      permissionsGroup,
     };
-
-    return roleDto;
   }
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {

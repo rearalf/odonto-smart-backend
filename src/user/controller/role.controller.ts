@@ -5,6 +5,7 @@ import {
   ApiOkResponse,
   ApiCreatedResponse,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import {
   Get,
@@ -21,11 +22,11 @@ import {
 import { RoleService } from '../services/role.service';
 import { Role } from '../entities/role.entity';
 
-import { BasicDto } from '@/common/dto/basic.dto';
-import { CreateRoleDto } from '../dto/create-role.dto';
-import { FilterRoleDto } from '../dto/filter-role.dto';
 import { RoleListItemSchema } from '../schemas/role-list-item.schema';
+
+import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
+import { FilterRoleDto, RoleWithPermissionsDto } from '../dto/filter-role.dto';
 
 @ApiTags('Role')
 @Controller('role')
@@ -53,19 +54,23 @@ export class RoleController {
   @Get(':id')
   @ApiOperation({
     summary: 'Get one role by id.',
-    description: 'Returns a person type by id.',
+    description: 'Returns a role by id, optionally including its permissions.',
   })
   @ApiOkResponse({
     description: 'Role retrieved successfully.',
-    type: BasicDto,
+    type: RoleWithPermissionsDto,
   })
-  async findById(@Param('id') id: number): Promise<{
-    id: number;
-    name: string;
-    description: string;
-    permission: number[];
-  }> {
-    return this.roleService.findById(id);
+  @ApiQuery({
+    name: 'withPermission',
+    required: false,
+    type: Boolean,
+    description: 'Whether to include the role’s permissions.',
+  })
+  async findById(
+    @Param('id') id: number,
+    @Query('withPermission') withPermission: boolean,
+  ): Promise<RoleWithPermissionsDto> {
+    return this.roleService.findById(id, withPermission);
   }
 
   @Post('create-role')
