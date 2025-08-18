@@ -282,10 +282,10 @@ export class RoleService {
   }> {
     const existing = await this.roleRepository
       .createQueryBuilder('role')
-      .where('role.id = :id', { id: 2 })
+      .where('role.id = :id', { id: role_id })
       .getOne();
 
-    if (!existing) throw new ConflictException('Este role no existe.');
+    if (!existing) throw new NotFoundException('Este role no existe.');
 
     return await this.dataSource.transaction(async (manager) => {
       const deleteResult = await manager.softDelete(Role, role_id);
