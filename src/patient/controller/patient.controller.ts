@@ -1,21 +1,34 @@
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import {
-  Controller,
   Get,
   Post,
   Body,
   Patch,
   Param,
   Delete,
+  Controller,
+  UseInterceptors,
 } from '@nestjs/common';
-import { PatientService } from './patient.service';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
+
+import { CreatePatientDto } from '../dto/create-patient.dto';
+import { UpdatePatientDto } from '../dto/update-patient.dto';
+import { PatientService } from '../patient.service';
 
 @Controller('patient')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
   @Post()
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(AnyFilesInterceptor())
+  @ApiOperation({
+    summary: 'Create a patient',
+    description: 'Returns a new patient.',
+  })
+  @ApiOkResponse({
+    description: 'The patient has been created.',
+  })
   create(@Body() createPatientDto: CreatePatientDto): string {
     return this.patientService.create(createPatientDto);
   }

@@ -26,10 +26,12 @@ export class PersonService {
   ): Promise<Person & { user: User }> {
     await this.personTypeService.findById(createPersonDto.person_type_id);
 
-    const user = await this.userService.createWithEntity(
-      manager,
-      createPersonDto.user,
-    );
+    const user = await this.userService.createWithEntity(manager, {
+      email: createPersonDto.email,
+      password: createPersonDto.password,
+      role_ids: createPersonDto.role_ids,
+      permission_ids: createPersonDto.permission_ids,
+    });
 
     const createPerson = manager.create(Person, {
       first_name: createPersonDto.first_name,

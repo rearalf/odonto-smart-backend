@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsArray,
   Matches,
@@ -35,6 +36,10 @@ export class CreateUserDto {
   @ApiProperty({
     example: [1, 2, 3],
     description: 'It is the roles ids',
+    type: [Number],
+  })
+  @Transform(({ value }: { value: string }) => {
+    return value.split(',').map(Number);
   })
   @IsArray({ message: 'Los roles no son validos.' })
   @IsNumber({}, { each: true, message: 'Los roles no es valido.' })
@@ -43,9 +48,14 @@ export class CreateUserDto {
   @ApiProperty({
     example: [1, 2, 3],
     description: 'It is the permissions ids',
+    type: [Number],
+    required: false,
   })
+  @Transform(({ value }: { value: string }) => {
+    return value.split(',').map(Number);
+  })
+  @IsOptional()
   @IsArray({ message: 'Los permisos no son validos.' })
   @IsNumber({}, { each: true, message: 'El permiso no es valido.' })
-  @IsOptional()
   permission_ids?: number[];
 }
