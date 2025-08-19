@@ -34,6 +34,7 @@ export class Patient extends BaseEntity {
     required: false,
   })
   medical_history?: string;
+
   @Column({ type: 'text', nullable: true })
   @ApiProperty({
     example: 'Allergic to penicillin and latex.',
@@ -48,15 +49,15 @@ export class Patient extends BaseEntity {
     description: 'Ongoing systemic treatments or chronic medication.',
     required: false,
   })
-  current_systematic_treatment?: string;
+  current_systemic_treatment?: string;
 
   @Column({ type: 'text', nullable: true })
   @ApiProperty({
-    example: 'Referred to lab for blood glucose and CBC analysis.',
-    description: 'Any references or follow-ups made to laboratories.',
+    example: 'Lab results indicate elevated glucose levels.',
+    description: 'Results or follow-ups from laboratory exams.',
     required: false,
   })
-  lab_references?: string;
+  lab_results?: string;
 
   @ApiProperty({
     description:
@@ -77,6 +78,60 @@ export class Patient extends BaseEntity {
     description: 'The gender of the patient.',
   })
   gender: Gender;
+
+  @Column({ type: 'varchar', nullable: true })
+  @ApiProperty({
+    example: '+50371234567',
+    description: 'Contact phone number of the patient.',
+    required: false,
+  })
+  phone?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  @ApiProperty({
+    example: 'San Salvador, El Salvador',
+    description: 'Residential address of the patient.',
+    required: false,
+  })
+  address?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  @ApiProperty({
+    example: 'Software Engineer',
+    description: 'Occupation or professional activity of the patient.',
+    required: false,
+  })
+  occupation?: string;
+
+  @Column({ type: 'boolean', default: false })
+  snc: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  svc: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  se: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  sme: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  systemNotes1?: string;
+
+  @Column({ type: 'boolean', default: false })
+  sr: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  su: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  sgu: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  sgi: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  systemNotes2?: string;
 
   @OneToMany(() => Appointment, (appointment) => appointment.patient)
   appointments: Appointment[];
