@@ -11,9 +11,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 
+import { PatientService } from '../services/patient.service';
+
 import { CreatePatientDto } from '../dto/create-patient.dto';
 import { UpdatePatientDto } from '../dto/update-patient.dto';
-import { PatientService } from '../patient.service';
+import { Patient } from '../entities/patient.entity';
 
 @Controller('patient')
 export class PatientController {
@@ -29,8 +31,8 @@ export class PatientController {
   @ApiOkResponse({
     description: 'The patient has been created.',
   })
-  create(@Body() createPatientDto: CreatePatientDto): string {
-    return this.patientService.create(createPatientDto);
+  async create(@Body() createPatientDto: CreatePatientDto): Promise<Patient> {
+    return await this.patientService.create(createPatientDto);
   }
 
   @Get()
