@@ -31,15 +31,24 @@ export class DoctorService {
   ) {}
 
   async create(createDoctorDto: CreateDoctorDto): Promise<Doctor> {
-    createDoctorDto.person.person_type_id = 4;
+    createDoctorDto.person_type_id = 4;
 
     await this.specialtyService.findById(createDoctorDto.specialty_id);
 
     return await this.dataSource.transaction(async (manager) => {
-      const person = await this.personService.createWithEnetity(
-        manager,
-        createDoctorDto.person,
-      );
+      const person = await this.personService.createWithEnetity(manager, {
+        first_name: createDoctorDto.first_name,
+        last_name: createDoctorDto.last_name,
+        middle_name: createDoctorDto.middle_name,
+        person_type_id: createDoctorDto.person_type_id,
+        email: createDoctorDto.email,
+        password: createDoctorDto.password,
+        role_ids: createDoctorDto.role_ids,
+        permission_ids: createDoctorDto.permission_ids,
+        personContact: createDoctorDto.personContact,
+        profile_picture: createDoctorDto.profile_picture,
+        profile_picture_name: createDoctorDto.profile_picture_name,
+      });
 
       const createDoctor = manager.create(Doctor, {
         qualification: createDoctorDto.qualification,

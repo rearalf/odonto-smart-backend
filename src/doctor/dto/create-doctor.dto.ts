@@ -1,16 +1,10 @@
+import { IsArray, IsNumber, IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { plainToInstance, Transform, Type } from 'class-transformer';
-import {
-  IsArray,
-  IsNumber,
-  IsString,
-  IsOptional,
-  ValidateNested,
-} from 'class-validator';
+import { Transform } from 'class-transformer';
 
 import { CreatePersonDto } from '@/person/dto/create-person.dto';
 
-export class CreateDoctorDto {
+export class CreateDoctorDto extends CreatePersonDto {
   @ApiProperty({
     example:
       'It is a person who graduated from x university, with a specialty in x',
@@ -39,15 +33,4 @@ export class CreateDoctorDto {
   @IsArray({ message: 'Las especialidades no son válidas.' })
   @IsNumber({}, { each: true, message: 'Las especialidades no son válidas.' })
   specialty_ids?: number[];
-
-  @ApiProperty({
-    description: 'Person to be created and linked to this doctor.',
-    type: () => CreatePersonDto,
-  })
-  @Transform(({ value }: { value: string }) =>
-    plainToInstance(CreatePersonDto, JSON.parse(value) as CreatePersonDto),
-  )
-  @ValidateNested()
-  @Type(() => CreatePersonDto)
-  person: CreatePersonDto;
 }
