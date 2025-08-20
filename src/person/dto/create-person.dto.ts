@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { plainToInstance, Transform, Type } from 'class-transformer';
 import {
   Length,
   IsNumber,
@@ -97,6 +97,9 @@ export class CreatePersonDto extends CreateUserDto {
   })
   @IsOptional()
   @ValidateNested({ each: true })
+  @Transform(({ value }: { value: string }) =>
+    plainToInstance(CreatePersonContactDto, JSON.parse(value)),
+  )
   @Type(() => CreatePersonContactDto)
   personContact?: CreatePersonContactDto[];
 }
