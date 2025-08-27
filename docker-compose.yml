@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  backend:
+    build: .
+    image: odonto_backend:latest
+    container_name: odonto_backend
+    env_file:
+      - .env.production.local
+    ports:
+      - '8080:8080'
+    restart: unless-stopped

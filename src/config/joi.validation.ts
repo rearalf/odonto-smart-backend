@@ -7,18 +7,21 @@ export const JoiValidationSchema = Joi.object({
   ALLOWED_ORIGINS: Joi.string()
     .required()
     .custom((value: string, helpers: Joi.CustomHelpers) => {
-      const urls = value.split(',').map((url) => url.trim());
-      for (const url of urls) {
-        const { error } = Joi.string()
-          .pattern(/^https?:\/\/[a-zA-Z0-9.-]+(:[0-9]+)?(\/[a-zA-Z0-9/-]*)*$/) // El patrón es para URL
-          .validate(url);
-        if (error) {
-          return helpers.error('any.invalid', {
-            message: `Invalid URL: ${url}`,
-          });
+      if (value !== '*' && value !== '') {
+        const urls = value.split(',').map((url) => url.trim());
+        for (const url of urls) {
+          const { error } = Joi.string()
+            .pattern(/^https?:\/\/[a-zA-Z0-9.-]+(:[0-9]+)?(\/[a-zA-Z0-9/-]*)*$/) // El patrón es para URL
+            .validate(url);
+          if (error) {
+            return helpers.error('any.invalid', {
+              message: `Invalid URL: ${url}`,
+            });
+          }
         }
+        return value;
       }
-      return value;
+      return '*';
     }),
 
   DB_HOST: Joi.string().required(),
