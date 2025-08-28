@@ -2,6 +2,7 @@ interface IEnvConfig {
   enviroment: string;
   port: number;
   host: string;
+  myself_host: string;
 
   db_host: string;
   db_port: number;
@@ -18,6 +19,7 @@ export const EnvConfig = (): IEnvConfig => ({
   enviroment: process.env.NODE_ENV || 'development',
   port: process.env.PORT ? +process.env.PORT : 3000,
   host: process.env.HOST || 'localhost',
+  myself_host: process.env.MYSELF_HOST || 'http://localhost:3000',
 
   db_host: process.env.DB_HOST || 'localhost',
   db_port: process.env.DB_PORT ? +process.env.DB_PORT : 5432,
