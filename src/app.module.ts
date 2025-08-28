@@ -11,6 +11,7 @@ import { OdontogramModule } from './odontogram/odontogram.module';
 import { PatientModule } from './patient/patient.module';
 import { PersonModule } from './person/person.module';
 import { DoctorModule } from './doctor/doctor.module';
+import { HealthModule } from './health/health.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -38,6 +39,7 @@ import { UserModule } from './user/user.module';
     PatientModule,
     OdontogramModule,
     AppointmentModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],

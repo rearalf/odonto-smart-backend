@@ -53,3 +53,6 @@ jobs:
             --platform=managed \
             --region=${{ secrets.GAR_LOCATION }} \
             --allow-unauthenticated
+            --port=8080 \
+            --readiness-probe-path=/api/v1/health \
+            --liveness-probe-path=/api/v1/health

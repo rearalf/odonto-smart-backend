@@ -51,11 +51,7 @@ async function bootstrap(): Promise<void> {
   }
 
   await app.listen(process.env.PORT ?? 3000, () => {
-    logger.log(
-      `Running on http://${process.env.HOST ?? 'localhost'}:${
-        process.env.PORT ?? 3000
-      }`,
-    );
+    logger.log('Running');
   });
 }
 void bootstrap();
