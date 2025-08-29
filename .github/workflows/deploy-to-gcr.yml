@@ -52,4 +52,6 @@ jobs:
             --image=$IMAGE:latest \
             --platform=managed \
             --region=${{ secrets.GAR_LOCATION }} \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --timeout=300 \
+            --port=8080
