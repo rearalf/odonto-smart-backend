@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { plainToInstance, Transform, Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Length,
   IsNumber,
@@ -10,9 +10,8 @@ import {
 } from 'class-validator';
 
 import { CreatePersonContactDto } from './create-person-contact.dto';
-import { CreateUserDto } from '@/user/dto/create-user.dto';
 
-export class CreatePersonDto extends CreateUserDto {
+export class CreatePersonDto {
   @ApiProperty({
     example: 'Carlos',
     required: true,
@@ -77,6 +76,15 @@ export class CreatePersonDto extends CreateUserDto {
   @IsOptional()
   @IsString()
   profile_picture?: string;
+
+  @ApiProperty({
+    example: 1,
+    required: false,
+    description: 'The ID of the user associated with this person.',
+  })
+  @IsOptional()
+  @IsNumber()
+  user_id?: number;
 
   @ApiProperty({
     description:

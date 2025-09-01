@@ -10,10 +10,13 @@ import { UpdateDoctorDto } from '../dto/update-doctor.dto';
 import { FilterDoctorDto } from '../dto/filter-doctor.dto';
 
 import { PaginationHelper } from '@/common/helpers/pagination-helper';
+import { unaccent } from '@/common/utils/unaccent';
+
 import { DoctorSpecialtyService } from './doctor-specialty.service';
 import { PersonService } from '@/person/services/person.service';
+import { UserService } from '@/user/services/user.service';
 import { SpecialtyService } from './specialty.service';
-import { unaccent } from '@/common/utils/unaccent';
+
 import {
   DoctorItemSchema,
   DoctorListItemSchema,
@@ -28,6 +31,7 @@ export class DoctorService {
     private readonly doctorSpecialtyService: DoctorSpecialtyService,
     private readonly specialtyService: SpecialtyService,
     private readonly personService: PersonService,
+    private readonly userService: UserService,
   ) {}
 
   async create(createDoctorDto: CreateDoctorDto): Promise<Doctor> {
@@ -36,16 +40,20 @@ export class DoctorService {
     await this.specialtyService.findById(createDoctorDto.specialty_id);
 
     return await this.dataSource.transaction(async (manager) => {
+      const newUser = await this.userService.createWithEntity(manager, {
+        email: createDoctorDto.email,
+        password: createDoctorDto.password,
+        role_ids: createDoctorDto.role_ids,
+        permission_ids: createDoctorDto.permission_ids || [],
+      });
+
       const person = await this.personService.createWithEnetity(manager, {
         first_name: createDoctorDto.first_name,
         last_name: createDoctorDto.last_name,
         middle_name: createDoctorDto.middle_name,
         person_type_id: createDoctorDto.person_type_id,
-        email: createDoctorDto.email,
-        password: createDoctorDto.password,
-        role_ids: createDoctorDto.role_ids,
-        permission_ids: createDoctorDto.permission_ids,
-        personContact: createDoctorDto.personContact,
+        user_id: newUser ? newUser.id : undefined,
+        personContact: createDoctorDto.person_contacts,
         profile_picture: createDoctorDto.profile_picture,
         profile_picture_name: createDoctorDto.profile_picture_name,
       });

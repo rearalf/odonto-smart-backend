@@ -4,13 +4,17 @@ import { DataSource } from 'typeorm';
 import { CreatePatientDto } from '../dto/create-patient.dto';
 import { UpdatePatientDto } from '../dto/update-patient.dto';
 
-import { PersonService } from '@/person/services/person.service';
 import { Patient } from '../entities/patient.entity';
+import { User } from '@/user/entities/user.entity';
+
+import { PersonService } from '@/person/services/person.service';
+import { UserService } from '@/user/services/user.service';
 
 @Injectable()
 export class PatientService {
   constructor(
     private readonly dataSource: DataSource,
+    private readonly userService: UserService,
     private readonly personService: PersonService,
   ) {}
 
@@ -18,16 +22,22 @@ export class PatientService {
     createPatientDto.person_type_id = 5;
 
     return this.dataSource.transaction(async (manager) => {
+      let newUser: User | null = null;
+      if (createPatientDto.email && createPatientDto.password) {
+        newUser = await this.userService.createWithEntity(manager, {
+          email: createPatientDto.email,
+          password: createPatientDto.password,
+          role_ids: createPatientDto.role_ids || [2],
+        });
+      }
+
       const person = await this.personService.createWithEnetity(manager, {
         first_name: createPatientDto.first_name,
         last_name: createPatientDto.last_name,
         middle_name: createPatientDto.middle_name,
         person_type_id: createPatientDto.person_type_id,
-        email: createPatientDto.email,
-        password: createPatientDto.password,
-        role_ids: createPatientDto.role_ids,
-        permission_ids: createPatientDto.permission_ids,
-        personContact: createPatientDto.personContact,
+        user_id: newUser ? newUser.id : undefined,
+        personContact: createPatientDto.person_contacts,
         profile_picture: createPatientDto.profile_picture,
         profile_picture_name: createPatientDto.profile_picture_name,
       });
