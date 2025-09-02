@@ -120,7 +120,7 @@ export class CreatePatientDto {
     description: 'Email address of the user',
   })
   @IsOptional()
-  @IsEmail()
+  @IsEmail({}, { message: 'El correo electrónico no es válido.' })
   email?: string;
 
   @ApiProperty({
@@ -234,7 +234,7 @@ export class CreatePatientDto {
     default: false,
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   complete_odontogram?: boolean;
 
@@ -254,7 +254,7 @@ export class CreatePatientDto {
       'Indicates if the patient has issues related to the central nervous system (CNS).',
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   snc?: boolean;
 
@@ -265,7 +265,7 @@ export class CreatePatientDto {
       'Indicates if the patient has cardiovascular system conditions.',
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   svc?: boolean;
 
@@ -275,7 +275,7 @@ export class CreatePatientDto {
     description: 'Indicates if the patient has endocrine system conditions.',
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   se?: boolean;
 
@@ -286,7 +286,7 @@ export class CreatePatientDto {
       'Indicates if the patient has musculoskeletal system conditions.',
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   sme?: boolean;
 
@@ -307,7 +307,7 @@ export class CreatePatientDto {
     description: 'Indicates if the patient has respiratory system conditions.',
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   sr?: boolean;
 
@@ -317,7 +317,7 @@ export class CreatePatientDto {
     description: 'Indicates if the patient has urinary system conditions.',
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   su?: boolean;
 
@@ -328,7 +328,7 @@ export class CreatePatientDto {
       'Indicates if the patient has genital or urogenital system conditions.',
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   sgu?: boolean;
 
@@ -339,7 +339,7 @@ export class CreatePatientDto {
       'Indicates if the patient has gastrointestinal system conditions.',
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   sgi?: boolean;
 

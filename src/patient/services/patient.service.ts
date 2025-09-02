@@ -43,7 +43,6 @@ export class PatientService {
       });
 
       const createPatient = manager.create(Patient, {
-        person_id: person.id,
         birth_date: createPatientDto.birth_date,
         address: createPatientDto.address,
         phone: createPatientDto.phone,
@@ -64,6 +63,7 @@ export class PatientService {
         svc: createPatientDto.svc,
         systemNotes1: createPatientDto.systemNotes1,
         systemNotes2: createPatientDto.systemNotes2,
+        person_id: person.id,
       });
 
       const newPatient = await manager.save(Patient, createPatient);

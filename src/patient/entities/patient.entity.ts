@@ -18,6 +18,9 @@ export class Patient extends BaseEntity {
   })
   person: Person;
 
+  @Column()
+  person_id: number;
+
   @Column({ type: 'date' })
   @ApiProperty({
     example: '1990-07-15',
