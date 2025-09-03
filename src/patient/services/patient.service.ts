@@ -1,11 +1,18 @@
+import { Brackets, DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { Response } from 'express';
+import * as dayjs from 'dayjs';
 
 import { CreatePatientDto } from '../dto/create-patient.dto';
 import { UpdatePatientDto } from '../dto/update-patient.dto';
+import { FilterPatientDto } from '../dto/filter-patient.dto';
 
 import { Patient } from '../entities/patient.entity';
 import { User } from '@/user/entities/user.entity';
+
+import { PaginationHelper } from '@/common/helpers/pagination-helper';
+import { unaccent } from '@/common/utils/unaccent';
 
 import { PersonService } from '@/person/services/person.service';
 import { UserService } from '@/user/services/user.service';
@@ -13,6 +20,8 @@ import { UserService } from '@/user/services/user.service';
 @Injectable()
 export class PatientService {
   constructor(
+    @InjectRepository(Patient)
+    private readonly patientRepository: Repository<Patient>,
     private readonly dataSource: DataSource,
     private readonly userService: UserService,
     private readonly personService: PersonService,
@@ -74,8 +83,65 @@ export class PatientService {
     });
   }
 
-  findAll(): string {
-    return `This action returns all patient`;
+  async findAll(
+    filterPatientDto: FilterPatientDto,
+    res: Response,
+  ): Promise<
+    {
+      id: number;
+      fullName: string;
+      phone: string;
+      birth_date: Date;
+      age: number;
+    }[]
+  > {
+    const selectQuery = this.patientRepository.createQueryBuilder('patient');
+
+    if (filterPatientDto.search) {
+      const searchNormalized = unaccent(filterPatientDto.search);
+      selectQuery.andWhere(
+        new Brackets((qb) => {
+          qb.where('unaccent(person.first_name) ILIKE :filtro', {
+            filtro: `%${searchNormalized}%`,
+          })
+            .orWhere('unaccent(person.middle_name) ILIKE :filtro', {
+              filtro: `%${searchNormalized}%`,
+            })
+            .orWhere('unaccent(person.last_name) ILIKE :filtro', {
+              filtro: `%${searchNormalized}%`,
+            });
+        }),
+      );
+    }
+
+    selectQuery
+      .leftJoinAndSelect('patient.person', 'person')
+      .leftJoinAndSelect('person.user', 'user');
+
+    if (filterPatientDto.pagination) {
+      PaginationHelper.paginate(
+        selectQuery,
+        filterPatientDto.page,
+        filterPatientDto.per_page,
+      );
+    }
+
+    const [patients, count] = await selectQuery.getManyAndCount();
+
+    if (filterPatientDto.pagination) {
+      PaginationHelper.setHeaders(res, count, filterPatientDto);
+    }
+
+    const patientsDto = patients.map((patient) => ({
+      id: patient.id,
+      fullName:
+        `${patient.person.first_name} ${patient.person.middle_name ?? ''} ${patient.person.last_name}`.trim(),
+      phone: patient.phone,
+      birth_date: patient.birth_date,
+      age: dayjs().diff(dayjs(patient.birth_date), 'year'),
+    }));
+
+    return patientsDto;
   }
 
   findOne(id: number): string {
