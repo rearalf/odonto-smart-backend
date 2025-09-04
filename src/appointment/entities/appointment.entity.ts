@@ -1,10 +1,10 @@
 import {
   Column,
   Entity,
-  JoinColumn,
+  OneToOne,
   ManyToOne,
   OneToMany,
-  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -26,6 +26,9 @@ export class Appointment extends BaseEntity {
   })
   doctor: Doctor;
 
+  @Column()
+  doctor_id: number;
+
   @ManyToOne(() => Patient)
   @JoinColumn({ name: 'patient_id' })
   @ApiProperty({
@@ -33,6 +36,9 @@ export class Appointment extends BaseEntity {
     type: () => Patient,
   })
   patient: Patient;
+
+  @Column()
+  patient_id: number;
 
   @Column({ type: 'timestamp' })
   @ApiProperty({

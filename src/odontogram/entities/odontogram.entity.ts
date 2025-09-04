@@ -1,4 +1,11 @@
-import { Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToOne,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { Appointment } from 'src/appointment/entities/appointment.entity';
@@ -19,6 +26,9 @@ export class Odontogram extends BaseEntity {
   })
   patient: Patient;
 
+  @Column()
+  patient_id: number;
+
   @OneToOne(() => Appointment, (appointment) => appointment.odontogram, {
     onDelete: 'SET NULL',
   })
@@ -29,6 +39,9 @@ export class Odontogram extends BaseEntity {
     required: true,
   })
   appointment: Appointment;
+
+  @Column({ nullable: true })
+  appointment_id: number | null;
 
   @OneToMany(() => Tooth, (tooth) => tooth.odontogram)
   tooth: Tooth[];

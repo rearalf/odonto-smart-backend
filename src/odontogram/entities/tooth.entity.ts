@@ -42,6 +42,9 @@ export class Tooth extends BaseEntity {
   })
   odontogram: Odontogram;
 
+  @Column()
+  odontogram_id: number;
+
   @IsInt()
   @Min(11)
   @Max(85)
