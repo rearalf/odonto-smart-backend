@@ -26,7 +26,7 @@ export class Odontogram extends BaseEntity {
   })
   patient: Patient;
 
-  @Column()
+  @Column({ nullable: true })
   patient_id: number;
 
   @OneToOne(() => Appointment, (appointment) => appointment.odontogram, {

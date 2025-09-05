@@ -1,9 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOdontogramDto } from './dto/create-odontogram.dto';
-import { UpdateOdontogramDto } from './dto/update-odontogram.dto';
+import { CreateOdontogramDto } from '../dto/create-odontogram.dto';
+import { UpdateOdontogramDto } from '../dto/update-odontogram.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Odontogram } from '../entities/odontogram.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class OdontogramService {
+  constructor(
+    @InjectRepository(Odontogram)
+    private readonly odontogramRepository: Repository<Odontogram>,
+  ) {}
+
+  async findOdontogramByPatientId(patientId: number): Promise<Odontogram[]> {
+    return await this.odontogramRepository.find({
+      where: { patient_id: patientId },
+    });
+  }
+
   create(_createOdontogramDto: CreateOdontogramDto): string {
     return 'This action adds a new odontogram';
   }
