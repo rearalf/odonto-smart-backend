@@ -13,8 +13,8 @@ export class OdontogramController {
   @Get('general/:patientId')
   async getGeneralOdontogram(
     @Param('patientId') patientId: number,
-  ): Promise<Odontogram[]> {
-    return this.odontogramService.findOdontogramByPatientId(patientId);
+  ): Promise<Odontogram> {
+    return await this.odontogramService.findOdontogramByPatientId(patientId);
   }
 
   // @Post()

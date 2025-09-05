@@ -12,9 +12,11 @@ export class OdontogramService {
     private readonly odontogramRepository: Repository<Odontogram>,
   ) {}
 
-  async findOdontogramByPatientId(patientId: number): Promise<Odontogram[]> {
-    return await this.odontogramRepository.find({
-      where: { patient_id: patientId },
+  async findOdontogramByPatientId(
+    patientId: number,
+  ): Promise<Odontogram | null> {
+    return await this.odontogramRepository.findOneBy({
+      patient_id: patientId,
     });
   }
 
