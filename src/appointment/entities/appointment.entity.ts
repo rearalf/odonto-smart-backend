@@ -18,16 +18,16 @@ import { BaseEntity } from 'src/db/entities/base-entity';
 
 @Entity()
 export class Appointment extends BaseEntity {
-  @ManyToOne(() => Doctor)
+  @ManyToOne(() => Doctor, { nullable: true })
   @JoinColumn({ name: 'doctor_id' })
   @ApiProperty({
     description: 'The doctor assigned to the appointment.',
     type: () => Doctor,
   })
-  doctor: Doctor;
+  doctor?: Doctor;
 
-  @Column()
-  doctor_id: number;
+  @Column({ nullable: true })
+  doctor_id?: number;
 
   @ManyToOne(() => Patient)
   @JoinColumn({ name: 'patient_id' })

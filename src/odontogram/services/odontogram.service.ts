@@ -12,12 +12,25 @@ export class OdontogramService {
     private readonly odontogramRepository: Repository<Odontogram>,
   ) {}
 
-  async findOdontogramByPatientId(
-    patientId: number,
+  async findOdontogram(
+    type: 'patient' | 'appointment',
+    id: number,
   ): Promise<Odontogram | null> {
-    return await this.odontogramRepository.findOneBy({
-      patient_id: patientId,
-    });
+    const query = this.odontogramRepository
+      .createQueryBuilder('odontogram')
+      .leftJoinAndSelect('odontogram.tooth', 'tooth');
+
+    if (type === 'patient') {
+      query
+        .where('odontogram.patient_id = :id', { id })
+        .andWhere('odontogram.appointment_id IS NULL');
+    } else if (type === 'appointment') {
+      query
+        .where('odontogram.appointment_id = :id', { id })
+        .andWhere('odontogram.patient_id IS NULL');
+    }
+
+    return await query.getOne();
   }
 
   create(_createOdontogramDto: CreateOdontogramDto): string {
