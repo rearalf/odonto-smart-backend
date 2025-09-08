@@ -1,15 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOdontogramDto } from '../dto/create-odontogram.dto';
-import { UpdateOdontogramDto } from '../dto/update-odontogram.dto';
+import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+
 import { Odontogram } from '../entities/odontogram.entity';
-import { Repository } from 'typeorm';
+import { ToothDto } from '../dto/tooth.dto';
+import { ToothService } from './tooth.service';
 
 @Injectable()
 export class OdontogramService {
   constructor(
     @InjectRepository(Odontogram)
     private readonly odontogramRepository: Repository<Odontogram>,
+    private readonly toothService: ToothService,
   ) {}
 
   async findOdontogram(
@@ -23,33 +25,34 @@ export class OdontogramService {
     if (type === 'patient') {
       query
         .where('odontogram.patient_id = :id', { id })
-        .andWhere('odontogram.appointment_id IS NULL');
+        .orderBy('odontogram.created_at', 'DESC')
+        .limit(1);
     } else if (type === 'appointment') {
       query
         .where('odontogram.appointment_id = :id', { id })
-        .andWhere('odontogram.patient_id IS NULL');
+        .andWhere('odontogram.patient_id IS NOT NULL');
     }
 
     return await query.getOne();
   }
 
-  create(_createOdontogramDto: CreateOdontogramDto): string {
-    return 'This action adds a new odontogram';
-  }
+  async createOdontogram(
+    manager: EntityManager,
+    appointment_id: number,
+    patient_id: number,
+    teeth: ToothDto[],
+  ): Promise<void> {
+    const newAppointmentOdontogram = await manager
+      .getRepository(Odontogram)
+      .save({
+        patient_id,
+        appointment_id,
+      });
 
-  findAll(): string {
-    return `This action returns all odontogram`;
-  }
-
-  findOne(id: number): string {
-    return `This action returns a #${id} odontogram`;
-  }
-
-  update(id: number, _updateOdontogramDto: UpdateOdontogramDto): string {
-    return `This action updates a #${id} odontogram`;
-  }
-
-  remove(id: number): string {
-    return `This action removes a #${id} odontogram`;
+    await this.toothService.applyTeethModifications(
+      manager,
+      newAppointmentOdontogram.id,
+      teeth,
+    );
   }
 }
