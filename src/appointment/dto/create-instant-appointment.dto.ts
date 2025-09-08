@@ -1,12 +1,15 @@
+import { ToothDto } from '@/odontogram/dto/tooth.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDate,
   Length,
+  IsArray,
   IsString,
   IsNumber,
   IsNotEmpty,
   IsOptional,
+  ValidateNested,
 } from 'class-validator';
 
 export class CreateInstantAppointmentDto {
@@ -56,7 +59,7 @@ export class CreateInstantAppointmentDto {
   @Length(0, 500, {
     message: 'Las notas deben tener como máximo 500 caracteres.',
   })
-  notes: string;
+  notes?: string;
 
   @ApiProperty({
     description: 'Hora de inicio de la cita',
@@ -77,4 +80,13 @@ export class CreateInstantAppointmentDto {
   @Type(() => Date)
   @IsDate({ message: 'La hora de finalización debe ser una fecha válida.' })
   end_time: Date;
+
+  @ApiProperty({
+    description: 'Lista de dientes modificados en esta cita',
+    type: [ToothDto],
+  })
+  @IsArray({ message: 'Debe ser un arreglo de dientes.' })
+  @ValidateNested({ each: true })
+  @Type(() => ToothDto)
+  Teeth: ToothDto[];
 }
