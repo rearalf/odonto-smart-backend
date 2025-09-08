@@ -88,5 +88,5 @@ export class CreateInstantAppointmentDto {
   @IsArray({ message: 'Debe ser un arreglo de dientes.' })
   @ValidateNested({ each: true })
   @Type(() => ToothDto)
-  Teeth: ToothDto[];
+  teeth: ToothDto[];
 }

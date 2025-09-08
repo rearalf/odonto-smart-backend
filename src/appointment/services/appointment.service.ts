@@ -54,24 +54,8 @@ export class AppointmentService {
         manager,
         appointmentSaved.id,
         createInstantAppointmentDto.patient_id,
-        createInstantAppointmentDto.Teeth,
+        createInstantAppointmentDto.teeth,
       );
     });
   }
-
-  // create(_createAppointmentDto: CreateAppointmentDto): string {
-  //   return 'This action adds a new appointment';
-  // }
-  // findAll(): string {
-  //   return `This action returns all appointment`;
-  // }
-  // findOne(id: number): string {
-  //   return `This action returns a #${id} appointment`;
-  // }
-  // update(id: number, _updateAppointmentDto: UpdateAppointmentDto): string {
-  //   return `This action updates a #${id} appointment`;
-  // }
-  // remove(id: number): string {
-  //   return `This action removes a #${id} appointment`;
-  // }
 }
