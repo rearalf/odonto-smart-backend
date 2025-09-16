@@ -24,6 +24,7 @@ export class CreateInstantAppointmentDto {
   @ApiPropertyOptional({
     description: 'ID del doctor asignado a la cita (opcional)',
     example: 45,
+    nullable: true,
   })
   @IsOptional()
   @IsNumber({}, { message: 'El ID del doctor debe ser un número.' })

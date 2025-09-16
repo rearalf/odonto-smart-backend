@@ -1,6 +1,6 @@
 import { Repository, DataSource, Brackets, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 
 import { Doctor } from '../entities/doctor.entity';
@@ -201,6 +201,8 @@ export class DoctorService {
       label: string;
     }[] = [];
 
+    if (!doctor) throw new NotFoundException('Doctor no encontrado.');
+
     if (doctor.doctorSpecialty.length > 0) {
       for (const specialty of doctor.doctorSpecialty) {
         specialties.push({
@@ -252,6 +254,20 @@ export class DoctorService {
     };
 
     return returnJson;
+  }
+
+  async getDoctorListToSelect(): Promise<{ id: number; name: string }[]> {
+    const doctors = await this.doctorRepository
+      .createQueryBuilder('doctor')
+      .leftJoinAndSelect('doctor.person', 'person')
+      .getMany();
+
+    return doctors.map((doc) => ({
+      id: doc.id,
+      name: `${doc.person.first_name} ${
+        doc.person.middle_name ? doc.person.middle_name + ' ' : ''
+      }${doc.person.last_name}`,
+    }));
   }
 
   update(id: number, _updateDoctorDto: UpdateDoctorDto): string {

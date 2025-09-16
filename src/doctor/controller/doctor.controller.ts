@@ -64,6 +64,29 @@ export class DoctorController {
     return res.json(response);
   }
 
+  @Get('/list')
+  @ApiOperation({
+    summary: 'Fetches a list of doctors with their IDs and names',
+    description:
+      'This endpoint returns a list of doctors that includes their unique ID and name. Useful for selecting a doctor from a list.',
+  })
+  @ApiOkResponse({
+    description: 'Returns a list of doctors',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+        },
+      },
+    },
+  })
+  async getDoctorListToSelect(): Promise<{ id: number; name: string }[]> {
+    return await this.doctorService.getDoctorListToSelect();
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get only one doctor',
