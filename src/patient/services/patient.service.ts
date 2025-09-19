@@ -1,6 +1,6 @@
 import { Brackets, DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 import * as dayjs from 'dayjs';
 
@@ -13,6 +13,8 @@ import { User } from '@/user/entities/user.entity';
 
 import { PaginationHelper } from '@/common/helpers/pagination-helper';
 import { unaccent } from '@/common/utils/unaccent';
+
+import { GetPatientByIdSchema } from '../schemas/patients.schemas';
 
 import { PersonService } from '@/person/services/person.service';
 import { UserService } from '@/user/services/user.service';
@@ -144,8 +146,46 @@ export class PatientService {
     return patientsDto;
   }
 
-  findOne(id: number): string {
-    return `This action returns a #${id} patient`;
+  async findOne(id: number): Promise<GetPatientByIdSchema> {
+    const patient = await this.patientRepository
+      .createQueryBuilder('patient')
+      .leftJoinAndSelect('patient.person', 'person')
+      .where('patient.id = :id', { id })
+      .getOne();
+
+    if (!patient) {
+      throw new NotFoundException('Paciente no encontrado');
+    }
+
+    const returnPatient = {
+      id: patient.id,
+      person_id: patient.person_id,
+      fullName:
+        `${patient.person.first_name} ${patient.person.middle_name ?? ''} ${patient.person.last_name}`.trim(),
+      phone: patient.phone,
+      birth_date: patient.birth_date,
+      age: dayjs().diff(dayjs(patient.birth_date), 'year'),
+      address: patient.address,
+      allergic_reactions: patient.allergic_reactions,
+      medical_history: patient.medical_history,
+      complete_odontogram: patient.complete_odontogram,
+      current_systemic_treatment: patient.current_systemic_treatment,
+      gender: patient.gender,
+      lab_results: patient.lab_results,
+      occupation: patient.occupation,
+      se: patient.se,
+      sgi: patient.sgi,
+      sgu: patient.sgu,
+      sr: patient.sr,
+      sme: patient.sme,
+      snc: patient.snc,
+      su: patient.su,
+      svc: patient.svc,
+      systemNotes1: patient.systemNotes1,
+      systemNotes2: patient.systemNotes2,
+    };
+
+    return returnPatient;
   }
 
   update(id: number, _updatePatientDto: UpdatePatientDto): string {

@@ -1,4 +1,10 @@
-import { ApiConsumes, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiConsumes,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { Response as ResponseExpress } from 'express';
 import {
@@ -22,7 +28,10 @@ import { FilterPatientDto } from '../dto/filter-patient.dto';
 
 import { Patient } from '../entities/patient.entity';
 
-import { PatientListItemSchema } from '../schemas/patients.schemas';
+import {
+  GetPatientByIdSchema,
+  PatientListItemSchema,
+} from '../schemas/patients.schemas';
 
 @Controller('patient')
 export class PatientController {
@@ -72,8 +81,28 @@ export class PatientController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number): string {
-    return this.patientService.findOne(id);
+  @ApiOperation({
+    summary: 'Get patient by ID',
+    description:
+      'Retrieves detailed information about a specific patient, including demographic details and clinical flags.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    example: 1,
+    description: 'Unique identifier of the patient to retrieve',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Patient information retrieved successfully',
+    type: GetPatientByIdSchema,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Patient not found',
+  })
+  async findOne(@Param('id') id: number): Promise<GetPatientByIdSchema> {
+    return await this.patientService.findOne(id);
   }
 
   @Patch(':id')
