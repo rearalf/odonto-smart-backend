@@ -3,6 +3,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { OdontogramService } from '../services/odontogram.service';
 import { Odontogram } from '../entities/odontogram.entity';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { OdontogramSchema } from '../schemas/odontrogram.schema';
 
 // import { CreateOdontogramDto } from '../dto/create-odontogram.dto';
 // import { UpdateOdontogramDto } from '../dto/update-odontogram.dto';
@@ -22,7 +23,7 @@ export class OdontogramController {
   @ApiResponse({
     status: 200,
     description: 'The general odontogram for the patient',
-    // type: Odontogram,
+    type: OdontogramSchema,
   })
   @ApiResponse({ status: 404, description: 'Odontogram not found' })
   async getGeneralOdontogram(
@@ -41,7 +42,7 @@ export class OdontogramController {
   @ApiResponse({
     status: 200,
     description: 'The odontogram for the appointment',
-    // type: Odontogram,
+    // type: OdontogramSchema,
   })
   @ApiResponse({ status: 404, description: 'Odontogram not found' })
   async getAppointmentOdontogram(
