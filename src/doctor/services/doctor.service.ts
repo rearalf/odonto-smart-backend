@@ -270,11 +270,87 @@ export class DoctorService {
     }));
   }
 
-  update(id: number, _updateDoctorDto: UpdateDoctorDto): string {
-    return `This action updates a #${id} doctor`;
+  async update(id: number, updateDoctorDto: UpdateDoctorDto): Promise<Doctor> {
+    const existingDoctor = await this.doctorRepository
+      .createQueryBuilder('doctor')
+      .leftJoinAndSelect('doctor.person', 'person')
+      .leftJoinAndSelect('person.user', 'user')
+      .leftJoinAndSelect('doctor.doctorSpecialty', 'doctorSpecialty')
+      .where('doctor.id = :id', { id })
+      .getOne();
+
+    if (!existingDoctor) {
+      throw new NotFoundException('Doctor no encontrado.');
+    }
+
+    // Validar especialidad principal si se proporciona
+    if (updateDoctorDto.specialty_id) {
+      await this.specialtyService.findById(updateDoctorDto.specialty_id);
+    }
+
+    return await this.dataSource.transaction(async (manager) => {
+      const {
+        qualification,
+        specialty_id,
+        first_name,
+        middle_name,
+        last_name,
+        profile_picture,
+        profile_picture_name,
+        email,
+        password,
+        specialty_ids,
+        ..._rest
+      } = updateDoctorDto;
+
+      const removeUndefined = (obj: Record<string, any>): Record<string, any> =>
+        Object.fromEntries(
+          Object.entries(obj).filter(([_, value]) => value !== undefined),
+        );
+
+      // Actualizar doctor
+      const doctorData = removeUndefined({ qualification, specialty_id });
+      if (Object.keys(doctorData).length > 0) {
+        await manager.update(Doctor, id, doctorData);
+      }
+
+      // Actualizar persona
+      const personData = removeUndefined({
+        first_name,
+        middle_name,
+        last_name,
+        profile_picture,
+        profile_picture_name,
+      });
+      if (Object.keys(personData).length > 0) {
+        await manager.update('Person', existingDoctor.person.id, personData);
+      }
+
+      // Actualizar usuario
+      if (existingDoctor.person.user) {
+        const userData = removeUndefined({ email, password });
+        if (Object.keys(userData).length > 0) {
+          await manager.update('User', existingDoctor.person.user.id, userData);
+        }
+      }
+
+      const updatedDoctor = await manager
+        .createQueryBuilder(Doctor, 'doctor')
+        .leftJoinAndSelect('doctor.person', 'person')
+        .leftJoinAndSelect('person.user', 'user')
+        .leftJoinAndSelect('doctor.specialty', 'specialty')
+        .leftJoinAndSelect('doctor.doctorSpecialty', 'doctorSpecialty')
+        .leftJoinAndSelect('doctorSpecialty.specialty', 'secondarySpecialty')
+        .where('doctor.id = :id', { id })
+        .getOne();
+      return updatedDoctor;
+    });
   }
 
-  remove(id: number): string {
-    return `This action removes a #${id} doctor`;
+  async remove(id: number): Promise<void> {
+    const result = await this.doctorRepository.softDelete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Doctor no encontrado.');
+    }
   }
 }

@@ -1,4 +1,7 @@
-import { PartialType } from '@nestjs/swagger';
+import { PartialType, OmitType } from '@nestjs/swagger';
 import { CreateDoctorDto } from './create-doctor.dto';
 
-export class UpdateDoctorDto extends PartialType(CreateDoctorDto) {}
+// Opción 2: Excluir campos que no deberían actualizarse
+export class UpdateDoctorDto extends PartialType(
+  OmitType(CreateDoctorDto, ['person_type_id'] as const),
+) {}

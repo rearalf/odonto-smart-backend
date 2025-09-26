@@ -103,6 +103,8 @@ export class DoctorController {
   }
 
   @Patch(':id')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(AnyFilesInterceptor())
   @ApiOperation({
     summary: 'Update a doctor',
     description: 'Returns the minimum data about the updated doctor by id.',
@@ -110,11 +112,11 @@ export class DoctorController {
   @ApiOkResponse({
     description: 'Returns the minimum data about the updated doctor by id.',
   })
-  update(
+  async update(
     @Param('id') id: number,
     @Body() updateDoctorDto: UpdateDoctorDto,
-  ): string {
-    return this.doctorService.update(id, updateDoctorDto);
+  ): Promise<Doctor> {
+    return await this.doctorService.update(id, updateDoctorDto);
   }
 
   @Delete(':id')
@@ -125,7 +127,7 @@ export class DoctorController {
   @ApiOkResponse({
     description: 'Returns the string.',
   })
-  remove(@Param('id') id: number): string {
+  remove(@Param('id') id: number): Promise<void> {
     return this.doctorService.remove(id);
   }
 }

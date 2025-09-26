@@ -101,9 +101,15 @@ export class CreateDoctorDto {
   })
   @IsOptional()
   @ValidateNested({ each: true })
-  @Transform(({ value }: { value: string }) =>
-    plainToInstance(CreatePersonContactDto, JSON.parse(value)),
-  )
+  @Transform(({ value }: { value: string | CreatePersonContactDto[] }) => {
+    if (Array.isArray(value)) {
+      return value; // Ya es un array, lo devolvemos tal como está
+    }
+    if (typeof value === 'string') {
+      return plainToInstance(CreatePersonContactDto, JSON.parse(value)); // Es string, parseamos
+    }
+    return value;
+  })
   @Type(() => CreatePersonContactDto)
   person_contacts?: CreatePersonContactDto[];
 
@@ -138,8 +144,14 @@ export class CreateDoctorDto {
     description: 'It is the roles ids',
   })
   @IsOptional()
-  @Transform(({ value }: { value: string }) => {
-    return value.split(',').map(Number);
+  @Transform(({ value }: { value: string | number[] }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return value.split(',').map(Number);
+    }
+    return value;
   })
   @IsArray({ message: 'Los roles no son validos.' })
   @IsNumber({}, { each: true, message: 'Los roles no es valido.' })
@@ -151,8 +163,14 @@ export class CreateDoctorDto {
     type: [Number],
     required: false,
   })
-  @Transform(({ value }: { value: string }) => {
-    return value.split(',').map(Number);
+  @Transform(({ value }: { value: string | number[] }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return value.split(',').map(Number);
+    }
+    return value;
   })
   @IsOptional()
   @IsArray({ message: 'Los permisos no son validos.' })
@@ -182,9 +200,15 @@ export class CreateDoctorDto {
     description: 'It is the specialties ids',
   })
   @IsOptional()
-  @Transform(
-    ({ value }: { value: string }) => JSON.parse(value) as Array<number>,
-  )
+  @Transform(({ value }: { value: string | number[] }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return value.split(',').map(Number);
+    }
+    return value;
+  })
   @IsArray({ message: 'Las especialidades no son válidas.' })
   @IsNumber({}, { each: true, message: 'Las especialidades no son válidas.' })
   specialty_ids?: number[];
