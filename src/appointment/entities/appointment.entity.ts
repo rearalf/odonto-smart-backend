@@ -62,12 +62,12 @@ export class Appointment extends BaseEntity {
   })
   status: STATUS_ENUM;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   @ApiProperty({
     example: 'Patient requested extra care due to tooth sensitivity.',
     description: 'Any notes related to the appointment.',
   })
-  notes: string;
+  notes?: string;
 
   @Column({ type: 'timestamp' })
   @ApiProperty({
