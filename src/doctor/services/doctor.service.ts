@@ -300,6 +300,9 @@ export class DoctorService {
         email,
         password,
         specialty_ids,
+        role_ids,
+        permission_ids,
+        person_contacts,
         ..._rest
       } = updateDoctorDto;
 
@@ -331,6 +334,74 @@ export class DoctorService {
         const userData = removeUndefined({ email, password });
         if (Object.keys(userData).length > 0) {
           await manager.update('User', existingDoctor.person.user.id, userData);
+        }
+
+        // Manejar roles del usuario
+        if (role_ids !== undefined) {
+          // Eliminar roles existentes
+          await manager.delete('UserRole', {
+            user_id: existingDoctor.person.user.id,
+          });
+
+          // Agregar nuevos roles
+          if (role_ids && role_ids.length > 0) {
+            for (const roleId of role_ids) {
+              const userRole = manager.create('UserRole', {
+                user_id: existingDoctor.person.user.id,
+                role_id: roleId,
+              });
+              await manager.save('UserRole', userRole);
+            }
+          }
+        }
+
+        // Manejar permisos del usuario
+        if (permission_ids !== undefined) {
+          // Eliminar permisos existentes
+          await manager.delete('UserPermission', {
+            user_id: existingDoctor.person.user.id,
+          });
+
+          // Agregar nuevos permisos
+          if (permission_ids && permission_ids.length > 0) {
+            for (const permissionId of permission_ids) {
+              const userPermission = manager.create('UserPermission', {
+                user_id: existingDoctor.person.user.id,
+                permission_id: permissionId,
+              });
+              await manager.save('UserPermission', userPermission);
+            }
+          }
+        }
+      }
+
+      // Manejar contactos de la persona
+      if (person_contacts !== undefined) {
+        // Eliminar contactos existentes
+        await manager.delete('PersonContact', {
+          person_id: existingDoctor.person.id,
+        });
+
+        // Agregar nuevos contactos
+        if (person_contacts && person_contacts.length > 0) {
+          for (const contact of person_contacts) {
+            const personContact = manager.create('PersonContact', {
+              person_id: existingDoctor.person.id,
+              contact_type: contact.contact_type,
+              contact_value: contact.contact_value,
+            });
+            await manager.save('PersonContact', personContact);
+          }
+        }
+      }
+
+      // Manejar especialidades secundarias
+      if (specialty_ids !== undefined) {
+        await manager.delete('DoctorSpecialty', { doctor_id: id });
+
+        // Agregar nuevas especialidades secundarias
+        if (specialty_ids && specialty_ids.length > 0) {
+          await this.doctorSpecialtyService.create(manager, id, specialty_ids);
         }
       }
 
