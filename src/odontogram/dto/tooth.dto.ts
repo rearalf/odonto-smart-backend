@@ -1,8 +1,24 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, Min, Max, IsOptional, IsEnum } from 'class-validator';
+import { IsInt, Min, Max, IsOptional, IsEnum, IsNumber } from 'class-validator';
 import { TOOTH_STATE, TOOTH_FACE_AFFECTION } from 'src/common/enums/tooth.enum';
 
 export class ToothDto {
+  @ApiProperty({
+    description: 'Tooth ID for for assign the odontogram',
+    example: 123,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'The tooth ID must be a number.' })
+  id?: number;
+
+  @ApiProperty({
+    description: 'Odontogram ID for for assign the tooth',
+    example: 123,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'The odontogram ID must be a number.' })
+  odontogram_id?: number;
+
   @ApiProperty({
     description: 'Número del diente según la nomenclatura dental',
     example: 11,

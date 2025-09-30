@@ -2,9 +2,10 @@ import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 
+import { OdontogramSchema } from '../schemas/odontrogram.schema';
 import { Odontogram } from '../entities/odontogram.entity';
-import { ToothDto } from '../dto/tooth.dto';
 import { ToothService } from './tooth.service';
+import { ToothDto } from '../dto/tooth.dto';
 
 @Injectable()
 export class OdontogramService {
@@ -17,7 +18,7 @@ export class OdontogramService {
   async findOdontogram(
     type: 'patient' | 'appointment',
     id: number,
-  ): Promise<Odontogram | null> {
+  ): Promise<OdontogramSchema | null> {
     const query = this.odontogramRepository
       .createQueryBuilder('odontogram')
       .leftJoinAndSelect('odontogram.tooth', 'tooth');
@@ -25,15 +26,41 @@ export class OdontogramService {
     if (type === 'patient') {
       query
         .where('odontogram.patient_id = :id', { id })
-        .orderBy('odontogram.created_at', 'DESC')
-        .limit(1);
+        .andWhere('odontogram.appointment_id IS NULL');
     } else if (type === 'appointment') {
       query
         .where('odontogram.appointment_id = :id', { id })
-        .andWhere('odontogram.patient_id IS NOT NULL');
+        .andWhere('odontogram.patient_id IS NULL');
     }
 
-    return await query.getOne();
+    const odontogram = await query.getOne();
+
+    if (!odontogram) return odontogram;
+
+    const {
+      created_at,
+      updated_at,
+      deleted_at,
+      patient,
+      appointment,
+      ...cleanOdontogram
+    } = odontogram;
+
+    const clearData = {
+      ...cleanOdontogram,
+      tooth: odontogram.tooth?.map((t) => {
+        const {
+          created_at,
+          updated_at,
+          deleted_at,
+          odontogram,
+          ...cleanTooth
+        } = t;
+        return cleanTooth;
+      }),
+    };
+
+    return clearData;
   }
 
   async createOdontogram(
@@ -41,18 +68,31 @@ export class OdontogramService {
     appointment_id: number,
     patient_id: number,
     teeth: ToothDto[],
-  ): Promise<void> {
-    const newAppointmentOdontogram = await manager
-      .getRepository(Odontogram)
-      .save({
+  ): Promise<Odontogram> {
+    let generalOdontogram = await manager.getRepository(Odontogram).findOne({
+      where: { patient_id, appointment_id: null },
+      relations: ['tooth'],
+    });
+
+    if (!generalOdontogram) {
+      generalOdontogram = await manager.getRepository(Odontogram).save({
         patient_id,
-        appointment_id,
+        appointment_id: null,
       });
+    }
+
+    const appointmentOdontogram = await manager.getRepository(Odontogram).save({
+      patient_id: null,
+      appointment_id,
+    });
 
     await this.toothService.applyTeethModifications(
       manager,
-      newAppointmentOdontogram.id,
+      appointmentOdontogram.id,
+      generalOdontogram.id,
       teeth,
     );
+
+    return appointmentOdontogram;
   }
 }

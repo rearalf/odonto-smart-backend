@@ -6,6 +6,7 @@ import { CreateInstantAppointmentDto } from '../dto/create-instant-appointment.d
 import { Appointment } from '../entities/appointment.entity';
 
 import { OdontogramService } from '@/odontogram/services/odontogram.service';
+import { STATUS_ENUM } from '../../common/enums/appointment.enum';
 
 @Injectable()
 export class AppointmentService {
@@ -48,6 +49,7 @@ export class AppointmentService {
         notes: createInstantAppointmentDto.notes,
         start_time: createInstantAppointmentDto.start_time,
         end_time: createInstantAppointmentDto.end_time,
+        status: STATUS_ENUM.COMPLETED,
       });
 
       await this.odontogramService.createOdontogram(

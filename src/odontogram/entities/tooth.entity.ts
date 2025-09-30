@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   Max,
@@ -30,6 +30,7 @@ export class IsToothNumberValid implements ValidatorConstraintInterface {
 }
 
 @Entity()
+@Unique(['odontogram_id', 'tooth_number'])
 export class Tooth extends BaseEntity {
   @ManyToOne(() => Odontogram, (odontogram) => odontogram.tooth, {
     onDelete: 'CASCADE',

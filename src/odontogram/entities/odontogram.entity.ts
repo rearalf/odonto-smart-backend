@@ -26,7 +26,7 @@ export class Odontogram extends BaseEntity {
   })
   patient: Patient;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty({
     description: 'The ID of the patient associated with this odontogram.',
     example: 123,
@@ -44,7 +44,7 @@ export class Odontogram extends BaseEntity {
   })
   appointment: Appointment;
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty({
     description: 'The ID of the appointment associated with this odontogram.',
     example: 456,

@@ -1,12 +1,8 @@
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Param } from '@nestjs/common';
 
 import { OdontogramService } from '../services/odontogram.service';
-import { Odontogram } from '../entities/odontogram.entity';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OdontogramSchema } from '../schemas/odontrogram.schema';
-
-// import { CreateOdontogramDto } from '../dto/create-odontogram.dto';
-// import { UpdateOdontogramDto } from '../dto/update-odontogram.dto';
 
 @ApiTags('Odontogram')
 @Controller('odontogram')
@@ -28,7 +24,7 @@ export class OdontogramController {
   @ApiResponse({ status: 404, description: 'Odontogram not found' })
   async getGeneralOdontogram(
     @Param('patientId') patientId: number,
-  ): Promise<Odontogram> {
+  ): Promise<OdontogramSchema> {
     return await this.odontogramService.findOdontogram('patient', patientId);
   }
 
@@ -42,43 +38,15 @@ export class OdontogramController {
   @ApiResponse({
     status: 200,
     description: 'The odontogram for the appointment',
-    // type: OdontogramSchema,
+    type: OdontogramSchema,
   })
   @ApiResponse({ status: 404, description: 'Odontogram not found' })
   async getAppointmentOdontogram(
     @Param('appointmentId') appointmentId: number,
-  ): Promise<Odontogram> {
+  ): Promise<OdontogramSchema> {
     return await this.odontogramService.findOdontogram(
       'appointment',
       appointmentId,
     );
   }
-
-  // @Post()
-  // create(@Body() createOdontogramDto: CreateOdontogramDto): string {
-  //   return this.odontogramService.create(createOdontogramDto);
-  // }
-
-  // @Get()
-  // findAll(): string {
-  //   return this.odontogramService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: number): string {
-  //   return this.odontogramService.findOne(id);
-  // }
-
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: number,
-  //   @Body() updateOdontogramDto: UpdateOdontogramDto,
-  // ): string {
-  //   return this.odontogramService.update(id, updateOdontogramDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: number): string {
-  //   return this.odontogramService.remove(id);
-  // }
 }

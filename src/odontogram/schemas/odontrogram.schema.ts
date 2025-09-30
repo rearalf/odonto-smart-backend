@@ -55,12 +55,6 @@ export class OdontogramSchema {
   @ApiProperty({ example: 456 })
   appointment_id: number;
 
-  @ApiProperty({ example: '2025-09-25T17:00:00.000Z', format: 'date-time' })
-  created_at: string;
-
-  @ApiProperty({ example: '2025-09-25T17:00:00.000Z', format: 'date-time' })
-  updated_at: string;
-
   @ApiProperty({ type: () => [ToothSchema] })
   tooth: ToothSchema[];
 }
