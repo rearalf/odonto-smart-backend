@@ -1,11 +1,13 @@
+import { Body, Controller, Get, Post, Query, Response } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Response as ResponseExpress } from 'express';
 
 import { AppointmentService } from '../services/appointment.service';
-import { CreateInstantAppointmentDto } from '../dto/create-instant-appointment.dto';
 
-// import { CreateAppointmentDto } from './dto/create-appointment.dto';
-// import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { CreateInstantAppointmentDto } from '../dto/create-instant-appointment.dto';
+import { FilterAppointmentDto } from '../dto/filter-appointment.dto';
+
+import { AppointmentsList } from '../schemas/appointment-list.schema';
 
 @Controller('appointment')
 export class AppointmentController {
@@ -23,14 +25,32 @@ export class AppointmentController {
     );
   }
 
+  @Get()
+  @ApiOperation({
+    summary: 'Get a list of appointments',
+    description:
+      'Retrieve a paginated list of appointments, with optional filters by patient name, date range, and status.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of filtered appointments retrieved successfully.',
+    type: AppointmentsList,
+    isArray: true,
+  })
+  async findAll(
+    @Query() filterAppointmentDto: FilterAppointmentDto,
+    @Response() res: ResponseExpress,
+  ): Promise<ResponseExpress<void>> {
+    const response = await this.appointmentService.getAllAppointment(
+      filterAppointmentDto,
+      res,
+    );
+    return res.json(response);
+  }
+
   /* @Post()
   create(@Body() createAppointmentDto: CreateAppointmentDto): string {
     return this.appointmentService.create(createAppointmentDto);
-  }
-
-  @Get()
-  findAll(): string {
-    return this.appointmentService.findAll();
   }
 
   @Get(':id')
