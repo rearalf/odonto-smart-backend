@@ -1,5 +1,5 @@
 import { ApiConsumes, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
-import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response as ResponseExpress } from 'express';
 import {
   Controller,
@@ -12,7 +12,12 @@ import {
   Delete,
   Query,
   Response,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
+import 'multer';
 
 import { DoctorService } from '../services/doctor.service';
 
@@ -33,7 +38,14 @@ export class DoctorController {
 
   @Post()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(AnyFilesInterceptor())
+  @UseInterceptors(
+    FileInterceptor('profile_picture', {
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+        files: 1,
+      },
+    }),
+  )
   @ApiOperation({
     summary: 'Create a doctor',
     description: 'Returns a new doctor.',
@@ -41,8 +53,20 @@ export class DoctorController {
   @ApiOkResponse({
     description: 'The doctor has been created.',
   })
-  async create(@Body() createDoctorDto: CreateDoctorDto): Promise<Doctor> {
-    return await this.doctorService.create(createDoctorDto);
+  async create(
+    @Body() createDoctorDto: CreateDoctorDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5242880 }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|webp)' }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<Doctor> {
+    return await this.doctorService.create(createDoctorDto, file);
   }
 
   @Get()

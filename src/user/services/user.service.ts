@@ -20,14 +20,21 @@ export class UserService {
     manager: EntityManager,
     createUserDto: CreateUserDto,
   ): Promise<User> {
-    const emailValidation = await manager.findOneBy(User, {
-      email: createUserDto.email,
+    const existingUser = await manager.findOne(User, {
+      where: { email: createUserDto.email },
+      withDeleted: true,
     });
 
-    if (emailValidation)
+    if (existingUser) {
+      if (existingUser.deleted_at) {
+        throw new ConflictException(
+          `El correo ${createUserDto.email} pertenece a una cuenta previamente eliminada. Solicite su restauración.`,
+        );
+      }
       throw new ConflictException(
         `El correo ${createUserDto.email} ya está registrado`,
       );
+    }
 
     const createUser = manager.create(User, {
       password: createUserDto.password,

@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
 import { UserRole } from '../entities/user-role.entity';
+import { Role } from '../entities/role.entity';
+
 import { RoleService } from './role.service';
 
 @Injectable()
@@ -16,7 +18,9 @@ export class UserRoleService {
     const saved: UserRole[] = [];
 
     for (const role_id of role_ids) {
-      await this.roleService.findById(role_id);
+      const role = await manager.findOne(Role, { where: { id: role_id } });
+      if (!role)
+        throw new NotFoundException(`El rol con ID #${role_id} no existe.`);
 
       const createUserRole = manager.create(UserRole, {
         role_id,

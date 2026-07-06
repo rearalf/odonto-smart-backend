@@ -2,6 +2,7 @@ import { Repository, DataSource, Brackets, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
+import 'multer';
 
 import { Doctor } from '../entities/doctor.entity';
 
@@ -34,7 +35,10 @@ export class DoctorService {
     private readonly userService: UserService,
   ) {}
 
-  async create(createDoctorDto: CreateDoctorDto): Promise<Doctor> {
+  async create(
+    createDoctorDto: CreateDoctorDto,
+    _file?: Express.Multer.File,
+  ): Promise<Doctor> {
     createDoctorDto.person_type_id = 4;
 
     await this.specialtyService.findById(createDoctorDto.specialty_id);

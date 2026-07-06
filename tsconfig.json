@@ -20,7 +20,8 @@
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["multer", "node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "test", "commitlint.config.ts"]
