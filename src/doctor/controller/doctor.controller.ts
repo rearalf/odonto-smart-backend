@@ -30,8 +30,6 @@ import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { UpdateDoctorDto } from '../dto/update-doctor.dto';
 import { FilterDoctorDto } from '../dto/filter-doctor.dto';
 
-import { Doctor } from '../entities/doctor.entity';
-
 @Controller('doctor')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
@@ -65,7 +63,7 @@ export class DoctorController {
       }),
     )
     file: Express.Multer.File,
-  ): Promise<Doctor> {
+  ): Promise<DoctorItemSchema> {
     return await this.doctorService.create(createDoctorDto, file);
   }
 

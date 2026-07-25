@@ -10,6 +10,7 @@ import {
   MaxLength,
   Matches,
   IsEmail,
+  IsDefined,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { plainToInstance, Transform, Type } from 'class-transformer';
@@ -54,15 +55,6 @@ export class CreateDoctorDto {
   last_name: string;
 
   @ApiProperty({
-    example: 1,
-    description:
-      'It is the id of the type of person to which it is being assigned.',
-  })
-  @Transform(({ value }: { value: string }) => parseInt(value))
-  @IsNumber({}, { message: 'El tipo de persona no es valido.' })
-  person_type_id: number;
-
-  @ApiProperty({
     example: 'profile.jpg',
     required: false,
     type: String,
@@ -83,6 +75,7 @@ export class CreateDoctorDto {
   profile_picture?: string;
 
   @ApiProperty({
+    required: false,
     description:
       'List of User contacts to be created and linked to this Person.',
     type: () => [CreatePersonContactDto],
@@ -111,16 +104,20 @@ export class CreateDoctorDto {
   @ApiProperty({
     example: 'user@example.com',
     description: 'Email address of the user',
+    required: true,
   })
-  @IsOptional()
-  @IsEmail()
+  @IsDefined({ message: 'El correo es requerido.' })
+  @IsNotEmpty({ message: 'El correo es requerida.' })
+  @IsEmail({}, { message: 'El correo no es valido.' })
   email: string;
 
   @ApiProperty({
     example: 'Hashedpassword123',
     description: 'Password of the user (hashed)',
+    required: true,
   })
-  @IsOptional()
+  @IsDefined({ message: 'La contraseña es requerido.' })
+  @IsNotEmpty({ message: 'La contraseña es requerida.' })
   @MinLength(8, {
     message: 'La contraseña debe tener al menos 8 caracteres.',
   })
@@ -137,12 +134,13 @@ export class CreateDoctorDto {
     example: [1, 2, 3],
     description: 'It is the roles ids',
   })
-  @IsOptional()
+  @IsDefined({ message: 'El rol es requerido.' })
+  @IsNotEmpty({ message: 'El rol es requerida.' })
   @Transform(({ value }: { value: string }) => {
     return value.split(',').map(Number);
   })
   @IsArray({ message: 'Los roles no son validos.' })
-  @IsNumber({}, { each: true, message: 'Los roles no es valido.' })
+  @IsNumber({}, { each: true, message: 'Los roles no son validos.' })
   role_ids: number[];
 
   @ApiProperty({
@@ -172,7 +170,9 @@ export class CreateDoctorDto {
   @ApiProperty({
     example: 1,
     description: 'It is the specific specialty that this doctor has.',
+    required: true,
   })
+  @IsNotEmpty({ message: 'La especialidad es requerida.' })
   @Transform(({ value }: { value: string }) => parseInt(value))
   @IsNumber({}, { message: 'La especialidad no es válida' })
   specialty_id: number;
@@ -180,6 +180,7 @@ export class CreateDoctorDto {
   @ApiProperty({
     example: [1, 2, 3],
     description: 'It is the specialties ids',
+    required: false,
   })
   @IsOptional()
   @Transform(

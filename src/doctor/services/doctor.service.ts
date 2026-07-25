@@ -22,6 +22,7 @@ import {
   DoctorItemSchema,
   DoctorListItemSchema,
 } from '../schemas/doctor-list-item.schema';
+import { PersonTypeEnum } from '@/common/enums/person-type.enum';
 
 @Injectable()
 export class DoctorService {
@@ -38,12 +39,10 @@ export class DoctorService {
   async create(
     createDoctorDto: CreateDoctorDto,
     _file?: Express.Multer.File,
-  ): Promise<Doctor> {
-    createDoctorDto.person_type_id = 4;
-
+  ): Promise<DoctorItemSchema> {
     await this.specialtyService.findById(createDoctorDto.specialty_id);
 
-    return await this.dataSource.transaction(async (manager) => {
+    const newDoctorId = await this.dataSource.transaction(async (manager) => {
       const newUser = await this.userService.createWithEntity(manager, {
         email: createDoctorDto.email,
         password: createDoctorDto.password,
@@ -55,7 +54,7 @@ export class DoctorService {
         first_name: createDoctorDto.first_name,
         last_name: createDoctorDto.last_name,
         middle_name: createDoctorDto.middle_name,
-        person_type_id: createDoctorDto.person_type_id,
+        person_type_id: PersonTypeEnum.DOCTOR,
         user_id: newUser ? newUser.id : undefined,
         personContact: createDoctorDto.person_contacts,
         profile_picture: createDoctorDto.profile_picture,
@@ -81,8 +80,11 @@ export class DoctorService {
         );
       }
 
-      return newDoctor;
+      return newDoctor.id;
     });
+
+    const doctor = await this.findOne(newDoctorId);
+    return doctor;
   }
 
   async findAll(
@@ -205,7 +207,7 @@ export class DoctorService {
       label: string;
     }[] = [];
 
-    if (!doctor) throw new NotFoundException('Doctor no encontrado.');
+    if (!doctor) throw new NotFoundException('Doctor no encontrado1.');
 
     if (doctor.doctorSpecialty.length > 0) {
       for (const specialty of doctor.doctorSpecialty) {

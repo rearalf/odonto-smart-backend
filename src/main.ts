@@ -30,6 +30,7 @@ async function bootstrap(): Promise<void> {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      stopAtFirstError: true,
       exceptionFactory: (errors: ValidationError[]): BadRequestException => {
         const formattedErrors = flattenValidationErrors(errors);
         return new BadRequestException(formattedErrors);
