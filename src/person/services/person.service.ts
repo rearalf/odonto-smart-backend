@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
 import { CreatePersonDto } from '../dto/create-person.dto';
@@ -6,7 +6,6 @@ import { UpdatePersonDto } from '../dto/update-person.dto';
 
 import { PersonContact } from '../entities/person_contact.entity';
 import { Person } from '../entities/person.entity';
-import { User } from '@/user/entities/user.entity';
 
 import { UserService } from '../../user/services/user.service';
 import { PersonContactService } from './person-contact.service';
@@ -20,10 +19,10 @@ export class PersonService {
     private readonly personContactService: PersonContactService,
   ) {}
 
-  async createWithEnetity(
+  async createWithEntity(
     manager: EntityManager,
     createPersonDto: CreatePersonDto,
-  ): Promise<Person & { user: User }> {
+  ): Promise<Person & { contacts: PersonContact[] }> {
     await this.personTypeService.findById(createPersonDto.person_type_id);
 
     const createPerson = manager.create(Person, {
@@ -52,6 +51,33 @@ export class PersonService {
       ...savedPerson,
       contacts,
     };
+  }
+
+  async updateEntity(
+    manager: EntityManager,
+    person_id: number,
+    updateData: {
+      first_name?: string;
+      middle_name?: string;
+      last_name?: string;
+    },
+  ): Promise<Person> {
+    const person = await manager.findOneBy(Person, { id: person_id });
+    if (!person) {
+      throw new NotFoundException(`La persona con ID #${person_id} no existe.`);
+    }
+
+    if (updateData.first_name !== undefined) {
+      person.first_name = updateData.first_name;
+    }
+    if (updateData.middle_name !== undefined) {
+      person.middle_name = updateData.middle_name;
+    }
+    if (updateData.last_name !== undefined) {
+      person.last_name = updateData.last_name;
+    }
+
+    return await manager.save(Person, person);
   }
 
   create(_createPersonDto: CreatePersonDto): string {

@@ -125,18 +125,38 @@ export class DoctorController {
   }
 
   @Patch(':id')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('profile_picture', {
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+        files: 1,
+      },
+    }),
+  )
   @ApiOperation({
     summary: 'Update a doctor',
-    description: 'Returns the minimum data about the updated doctor by id.',
+    description: 'Returns the updated doctor data by id.',
   })
   @ApiOkResponse({
-    description: 'Returns the minimum data about the updated doctor by id.',
+    description: 'Returns the updated doctor data by id.',
+    type: DoctorItemSchema,
   })
-  update(
+  async update(
     @Param('id') id: number,
     @Body() updateDoctorDto: UpdateDoctorDto,
-  ): string {
-    return this.doctorService.update(id, updateDoctorDto);
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5242880 }),
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg|webp)' }),
+        ],
+        fileIsRequired: false,
+      }),
+    )
+    _file: Express.Multer.File,
+  ): Promise<DoctorItemSchema> {
+    return await this.doctorService.update(id, updateDoctorDto);
   }
 
   @Delete(':id')

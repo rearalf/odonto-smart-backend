@@ -42,7 +42,7 @@ export class PatientService {
         });
       }
 
-      const person = await this.personService.createWithEnetity(manager, {
+      const person = await this.personService.createWithEntity(manager, {
         first_name: createPatientDto.first_name,
         last_name: createPatientDto.last_name,
         middle_name: createPatientDto.middle_name,

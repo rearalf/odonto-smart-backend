@@ -50,7 +50,7 @@ export class DoctorService {
         permission_ids: createDoctorDto.permission_ids || [],
       });
 
-      const person = await this.personService.createWithEnetity(manager, {
+      const person = await this.personService.createWithEntity(manager, {
         first_name: createDoctorDto.first_name,
         last_name: createDoctorDto.last_name,
         middle_name: createDoctorDto.middle_name,
@@ -73,11 +73,16 @@ export class DoctorService {
         createDoctorDto.specialty_ids &&
         createDoctorDto.specialty_ids.length > 0
       ) {
-        await this.doctorSpecialtyService.create(
-          manager,
-          newDoctor.id,
-          createDoctorDto.specialty_ids,
+        const filteredIds = createDoctorDto.specialty_ids.filter(
+          (sid) => sid !== createDoctorDto.specialty_id,
         );
+        if (filteredIds.length > 0) {
+          await this.doctorSpecialtyService.create(
+            manager,
+            newDoctor.id,
+            filteredIds,
+          );
+        }
       }
 
       return newDoctor.id;
@@ -276,8 +281,57 @@ export class DoctorService {
     }));
   }
 
-  update(id: number, _updateDoctorDto: UpdateDoctorDto): string {
-    return `This action updates a #${id} doctor`;
+  async update(
+    id: number,
+    updateDoctorDto: UpdateDoctorDto,
+  ): Promise<DoctorItemSchema> {
+    const doctor = await this.doctorRepository.findOneBy({ id });
+    if (!doctor) {
+      throw new NotFoundException(`Doctor no encontrado.`);
+    }
+
+    if (updateDoctorDto.specialty_id) {
+      await this.specialtyService.findById(updateDoctorDto.specialty_id);
+    }
+
+    await this.dataSource.transaction(async (manager) => {
+      if (
+        updateDoctorDto.first_name ||
+        updateDoctorDto.middle_name !== undefined ||
+        updateDoctorDto.last_name
+      ) {
+        await this.personService.updateEntity(manager, doctor.person_id, {
+          first_name: updateDoctorDto.first_name,
+          middle_name: updateDoctorDto.middle_name,
+          last_name: updateDoctorDto.last_name,
+        });
+      }
+
+      const doctorUpdates: Partial<Doctor> = {};
+      if (updateDoctorDto.qualification !== undefined) {
+        doctorUpdates.qualification = updateDoctorDto.qualification;
+      }
+      if (updateDoctorDto.specialty_id) {
+        doctorUpdates.specialty_id = updateDoctorDto.specialty_id;
+      }
+
+      if (Object.keys(doctorUpdates).length > 0) {
+        await manager.update(Doctor, id, doctorUpdates);
+      }
+
+      if (
+        updateDoctorDto.specialty_ids !== null &&
+        updateDoctorDto.specialty_ids !== undefined
+      ) {
+        const primaryId = updateDoctorDto.specialty_id ?? doctor.specialty_id;
+        const filteredIds = updateDoctorDto.specialty_ids.filter(
+          (sid) => sid !== primaryId,
+        );
+        await this.doctorSpecialtyService.replace(manager, id, filteredIds);
+      }
+    });
+
+    return await this.findOne(id);
   }
 
   remove(id: number): string {

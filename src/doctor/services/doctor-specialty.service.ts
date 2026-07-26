@@ -32,4 +32,18 @@ export class DoctorSpecialtyService {
 
     return savedDoctorSpecialty;
   }
+
+  async replace(
+    manager: EntityManager,
+    doctor_id: number,
+    specialty_ids: number[],
+  ): Promise<DoctorSpecialty[]> {
+    await manager.delete(DoctorSpecialty, { doctor_id });
+
+    if (specialty_ids.length === 0) {
+      return [];
+    }
+
+    return await this.create(manager, doctor_id, specialty_ids);
+  }
 }
