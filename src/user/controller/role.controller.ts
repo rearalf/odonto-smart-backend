@@ -73,7 +73,7 @@ export class RoleController {
     return this.roleService.findById(id, withPermission);
   }
 
-  @Post('create-role')
+  @Post()
   @ApiOperation({
     summary: 'Create a new role.',
     description: 'Returns a new role.',
